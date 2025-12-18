@@ -29,19 +29,19 @@ public class Simulation {
         this.noOfGrass = noOfGrass;
         int jungleSize = (map.getUpperRight().getX()+1) * ((int) ((map.getUpperRight().getY()+1)*0.6) - (int) ((map.getUpperRight().getY()+1)*0.4)+1);
         int mapSize = (map.getUpperRight().getX()+1) * (map.getUpperRight().getY()+1);
-        this.jungleGrassPositionsGenerator = new JungleGrassPositionsGenerator(map.getUpperRight().getX(),(int) ((map.getUpperRight().getY()+1)*0.4), (int) ((map.getUpperRight().getY()+1)*0.6),jungleSize);
-        this.steppeGrassPositionsGenerator  = new SteppeGrassPositionsGenerator(map.getUpperRight().getX(),map.getUpperRight().getY(),mapSize-jungleSize);
+        this.jungleGrassPositionsGenerator = new JungleGrassPositionsGenerator(map.getUpperRight().getX()+1,(int) ((map.getUpperRight().getY()+1)*0.4), (int) ((map.getUpperRight().getY()+1)*0.6),jungleSize);
+        this.steppeGrassPositionsGenerator  = new SteppeGrassPositionsGenerator(map.getUpperRight().getX()+1,map.getUpperRight().getY(),mapSize-jungleSize);
         int place = 0;
 
-//        for (int i = 0; i < noOfGrass; i++) {
-//            place = random.nextInt(jungleToSteppeRatio.length);
-//            if (jungleToSteppeRatio[place]==0){
-//                if (jungleGrassPositionsGenerator.iterator().hasNext())
-//                    map.place(new Grass(jungleGrassPositionsGenerator.iterator().next()));
-//            }else if (steppeGrassPositionsGenerator.iterator().hasNext()){
-//                map.place(new Grass(steppeGrassPositionsGenerator.iterator().next()));
-//            }
-//        }
+        for (int i = 0; i < noOfGrass; i++) {
+            place = random.nextInt(jungleToSteppeRatio.length);
+            if (jungleToSteppeRatio[place]==0){
+                if (jungleGrassPositionsGenerator.iterator().hasNext())
+                    map.place(new Grass(jungleGrassPositionsGenerator.iterator().next()));
+            }else if (steppeGrassPositionsGenerator.iterator().hasNext()){
+                map.place(new Grass(steppeGrassPositionsGenerator.iterator().next()));
+            }
+        }
         for (Animal animal : animals) {
             map.place(animal);
         }
@@ -55,22 +55,31 @@ public class Simulation {
     }
     public void daycycle() throws Exception {
 //        Animals moves
+
         for (Animal animal : animals) {
             map.move(animal, animal.getGene().get(((days - 1) % animal.getGene().size())));
-            IO.println(animal.getPosition());
-            IO.print(animal.getFacingDirection() + "\n");
+
+            try{
+                Thread.sleep(500);
+            }catch (InterruptedException e){
+                e.printStackTrace();
+            }
+
+
+//            IO.println(animal.getPosition());
+//            IO.print(animal.getFacingDirection() + "\n");
         }
 //        Grass Growth
-//        int place = 0;
-//        for (int i = 0; i < noOfGrass; i++) {
-//            place = random.nextInt(jungleToSteppeRatio.length);
-//            if (jungleToSteppeRatio[place]==0){
-//                if (jungleGrassPositionsGenerator.iterator().hasNext())
-//                    map.place(new Grass(jungleGrassPositionsGenerator.iterator().next()));
-//            }else if (steppeGrassPositionsGenerator.iterator().hasNext()){
-//                map.place(new Grass(steppeGrassPositionsGenerator.iterator().next()));
-//            }
-//        }
+        int place = 0;
+        for (int i = 0; i < noOfGrass; i++) {
+            place = random.nextInt(jungleToSteppeRatio.length);
+            if (jungleToSteppeRatio[place]==0){
+                if (jungleGrassPositionsGenerator.iterator().hasNext())
+                    map.place(new Grass(jungleGrassPositionsGenerator.iterator().next()));
+            }else if (steppeGrassPositionsGenerator.iterator().hasNext()){
+                map.place(new Grass(steppeGrassPositionsGenerator.iterator().next()));
+            }
+        }
 //        Grass test
 
 //        for (int i =0;i<map.getUpperRight().getX();i++) {

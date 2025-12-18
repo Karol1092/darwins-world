@@ -16,7 +16,7 @@ public class Animal implements WorldElement {
     public Animal(Vector2d position) {
         this.position = position;
         this.facingDirection = WorldDirections.NORTH;
-        this.gene = new ArrayList<>(List.of(0,0,2,2));
+        this.gene = new ArrayList<>(List.of(0,0,0,0,0,0,1));
         this.lifeEnergy = 100;
     }
     public Animal(Vector2d position, WorldDirections facingDirection, List<Integer> gene, int lifeEnergy) {
@@ -73,5 +73,14 @@ public class Animal implements WorldElement {
         }
         position = position.add(WorldDirections.toUnitVector(facingDirection));
 
+    }
+    @Override
+    public String toString() {
+        return switch (facingDirection) {
+            case NORTH,NORTH_EAST,NORTH_WEST -> "^";
+            case SOUTH,SOUTH_EAST,SOUTH_WEST -> "v";
+            case WEST -> "<";
+            case EAST -> ">";
+        };
     }
 }

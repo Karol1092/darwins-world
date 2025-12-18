@@ -12,4 +12,8 @@ import agh.ics.oop.util.Vector2d;
         public Vector2d getPosition() {
             return position;
         }
+        @Override
+        public String toString(){
+            return "*";
+        }
     }

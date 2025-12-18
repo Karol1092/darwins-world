@@ -5,6 +5,7 @@ import agh.ics.oop.model.world_element.Animal;
 import agh.ics.oop.model.world_element.Grass;
 import agh.ics.oop.model.world_element.WorldDirections;
 import agh.ics.oop.model.world_element.WorldElement;
+import agh.ics.oop.presenter.Observer;
 import agh.ics.oop.util.Vector2d;
 
 import java.util.ArrayList;
@@ -16,6 +17,7 @@ public class WorldMap{
     private final HashMap<Vector2d, Grass> grasses = new HashMap<>();
     private final Vector2d lowerLeft = new Vector2d(0,0);
     private final Vector2d upperRight;
+    protected final List<Observer> observers = new ArrayList<>();
 
     public WorldMap(int width, int height) {
         this.upperRight = new Vector2d(width-1, height-1);
@@ -33,6 +35,21 @@ public class WorldMap{
             if (grasses.containsKey(position)) elements.add(grasses.get(position));
             List<Animal> animalsAtPosition = animals.get(position);
             if (animalsAtPosition!=null) elements.addAll(animalsAtPosition);
+        }
+        return elements;
+    }
+
+    public List<WorldElement> getAllElements(){
+        List<WorldElement> elements = new ArrayList<>();
+        for (int i = 0; i<upperRight.getX()+1; i++){
+            for (int j = 0; j<upperRight.getY()+1; j++) {
+                Vector2d position = new Vector2d(i, j);
+                if (isOccupied(position)) {
+                    if (grasses.containsKey(position)) elements.add(grasses.get(position));
+                    List<Animal> animalsAtPosition = animals.get(position);
+                    if (animalsAtPosition != null) elements.addAll(animalsAtPosition);
+                }
+            }
         }
         return elements;
     }
@@ -77,6 +94,7 @@ public class WorldMap{
         int x = ((animal.getPosition().getX() - lowerLeft.getX()) % range + range) % range + lowerLeft.getX();
         y=animal.getPosition().getY();
         animal.setPosition(new Vector2d(x,y));
+        mapChanged("Animal moved at : " + animal.getPosition());
         animals.computeIfAbsent(animal.getPosition(), k -> new ArrayList<>()).add(animal);
     }
 
@@ -85,5 +103,16 @@ public class WorldMap{
     }
     public Vector2d getUpperRight() {
         return  upperRight;
+    }
+    public void addObserver(Observer observer){
+        observers.add(observer);
+    }
+    public void removeObserver(Observer observer){
+        observers.remove(observer);
+    }
+    public void mapChanged(String message) {
+        for (Observer observer : observers) {
+            observer.mapChanged(this, message);
+        }
     }
 }
