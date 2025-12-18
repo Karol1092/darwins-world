@@ -30,9 +30,9 @@ public class WorldMap{
     public List<WorldElement> getElements(Vector2d position) {
         List<WorldElement> elements = new ArrayList<>();
         if (isOccupied(position)) {
+            if (grasses.containsKey(position)) elements.add(grasses.get(position));
             List<Animal> animalsAtPosition = animals.get(position);
             if (animalsAtPosition!=null) elements.addAll(animalsAtPosition);
-            if (grasses.containsKey(position)) elements.add(grasses.get(position));
         }
         return elements;
     }
@@ -72,11 +72,18 @@ public class WorldMap{
             }else if(facingDirection == WorldDirections.SOUTH){
                 animal.move(4);
             }
-            }
+        }
         int range = upperRight.getX()-lowerLeft.getX()+1;
         int x = ((animal.getPosition().getX() - lowerLeft.getX()) % range + range) % range + lowerLeft.getX();
         y=animal.getPosition().getY();
         animal.setPosition(new Vector2d(x,y));
         animals.computeIfAbsent(animal.getPosition(), k -> new ArrayList<>()).add(animal);
+    }
+
+    public Vector2d getLowerLeft() {
+        return lowerLeft;
+    }
+    public Vector2d getUpperRight() {
+        return  upperRight;
     }
 }

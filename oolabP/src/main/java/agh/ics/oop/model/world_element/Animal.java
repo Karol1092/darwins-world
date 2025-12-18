@@ -11,21 +11,31 @@ public class Animal implements WorldElement {
     private  Vector2d position;
     private WorldDirections facingDirection;
     private final List<Integer> gene;
+    private int lifeEnergy;
 
     public Animal(Vector2d position) {
         this.position = position;
         this.facingDirection = WorldDirections.NORTH;
-        this.gene = new ArrayList<>(List.of(0,0,0,0));
+        this.gene = new ArrayList<>(List.of(0,0,2,2));
+        this.lifeEnergy = 100;
     }
-    public Animal(Vector2d position, WorldDirections facingDirection, List<Integer> gene) {
+    public Animal(Vector2d position, WorldDirections facingDirection, List<Integer> gene, int lifeEnergy) {
         this.gene = gene;
         this.position = position;
         this.facingDirection = facingDirection;
+        this.lifeEnergy = lifeEnergy;
     }
     public Animal(Vector2d position, List<Integer> gene) {
         this.gene = gene;
         this.position = position;
         this.facingDirection = WorldDirections.NORTH;
+    }
+
+    public void setLifeEnergy(int lifeEnergy) {
+        this.lifeEnergy = lifeEnergy;
+    }
+    public int getLifeEnergy(){
+        return lifeEnergy;
     }
 
     @Override

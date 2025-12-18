@@ -11,11 +11,10 @@ import java.util.List;
 
 public class World {
     public static void main(String[] args) {
-        WorldMap map = new WorldMap(5,5);
+        WorldMap map = new WorldMap(10,5);
         List<Integer> gene = new  ArrayList<>(List.of(0,0));
-        List<Animal> animals = new ArrayList<>(List.of(new Animal(new Vector2d(2, 2), WorldDirections.NORTH_EAST,gene),
-                new Animal(new Vector2d(2, 2), WorldDirections.NORTH_EAST,gene)));
-        Simulation simulation = new Simulation(map,animals);
+        List<Animal> animals = new ArrayList<>(List.of(new Animal(new Vector2d(2,1)),new Animal(new Vector2d(3,4))));
+        Simulation simulation = new Simulation(map,animals,5);
         try{
             simulation.run();
         } catch (Exception e){
