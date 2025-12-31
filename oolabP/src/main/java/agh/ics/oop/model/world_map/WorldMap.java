@@ -62,37 +62,26 @@ public class WorldMap{
             animals.computeIfAbsent(element.getPosition(), k  -> new ArrayList<>()).add((Animal) element);
         }
     }
-
+    private int verticalPositionCheck(Animal animal, WorldDirections facingDirection) throws Exception {
+        int y = animal.getPosition().getY();
+        if (y > upperRight.getY() || y < lowerLeft.getY()) {
+            animal.setFacingDirection(WorldDirections.bounce(facingDirection));
+            animal.move(0);
+            if (animal.getFacingDirection() == WorldDirections.NORTH
+                    || animal.getFacingDirection() == WorldDirections.SOUTH) {
+                animal.move(0);
+            }
+        }
+        return animal.getPosition().getY();
+    }
     public void move(Animal animal,int rotation) throws Exception{
         animals.remove(animal.getPosition());
         animal.move(rotation);
         WorldDirections facingDirection = animal.getFacingDirection();
-        int y = animal.getPosition().getY();
-        if (y > upperRight.getY()) {
-            if (facingDirection == WorldDirections.NORTH_WEST){
-                animal.setFacingDirection(WorldDirections.SOUTH_WEST);
-                animal.move(0);
-
-            } else if (facingDirection == WorldDirections.NORTH_EAST){
-                animal.setFacingDirection(WorldDirections.SOUTH_EAST);
-                animal.move(0);
-            } else if (facingDirection == WorldDirections.NORTH){
-                animal.move(4);
-            }
-        }else if (y < lowerLeft.getY()) {
-            if (facingDirection == WorldDirections.SOUTH_WEST){
-                animal.setFacingDirection(WorldDirections.NORTH_WEST);
-                animal.move(0);
-            }else if (facingDirection == WorldDirections.SOUTH_EAST){
-                animal.setFacingDirection(WorldDirections.NORTH_EAST);
-                animal.move(0);
-            }else if(facingDirection == WorldDirections.SOUTH){
-                animal.move(4);
-            }
-        }
+        int y = verticalPositionCheck(animal,facingDirection);
         int range = upperRight.getX()-lowerLeft.getX()+1;
         int x = ((animal.getPosition().getX() - lowerLeft.getX()) % range + range) % range + lowerLeft.getX();
-        y=animal.getPosition().getY();
+
         animal.setPosition(new Vector2d(x,y));
         mapChanged("Animal moved at : " + animal.getPosition());
         animals.computeIfAbsent(animal.getPosition(), k -> new ArrayList<>()).add(animal);

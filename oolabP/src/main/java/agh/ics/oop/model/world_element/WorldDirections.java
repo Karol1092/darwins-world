@@ -60,4 +60,15 @@ public enum WorldDirections {
             case NORTH_WEST ->  new Vector2d(-1,1);
         };
     }
+    public static WorldDirections bounce(WorldDirections direction) {
+        return switch (direction) {
+            case NORTH_EAST -> SOUTH_EAST;
+            case SOUTH_EAST -> NORTH_EAST;
+            case NORTH_WEST -> SOUTH_WEST;
+            case SOUTH_WEST -> NORTH_WEST;
+            case NORTH -> SOUTH;
+            case SOUTH -> NORTH;
+            default -> direction;
+        };
+    }
 }

@@ -113,7 +113,7 @@ public class Presenter implements Observer {
     }
 
     public void onSimulationStartClicked() {
-        WorldMap map = new WorldMap(10, 10);
+        WorldMap map = new WorldMap(5, 5);
         List<Animal> animals = new ArrayList<>(
                 List.of(
                         new Animal(new Vector2d(2, 1)),
@@ -123,8 +123,6 @@ public class Presenter implements Observer {
 
         Simulation simulation = new Simulation(map, animals, 5);
         PresenterApp simulationApp = new PresenterApp();
-
-        // 1️⃣ Tworzenie okna – TYLKO JavaFX Thread
         Platform.runLater(() -> {
             try {
                 simulationApp.createStage(map);
@@ -132,8 +130,6 @@ public class Presenter implements Observer {
                 e.printStackTrace();
             }
         });
-
-        // 2️⃣ Symulacja – osobny wątek
         Thread simulationThread = new Thread(() -> {
             try {
                 simulation.run();
