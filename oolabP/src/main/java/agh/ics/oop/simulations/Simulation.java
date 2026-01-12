@@ -1,11 +1,10 @@
 package agh.ics.oop.simulations;
 
-import agh.ics.oop.model.world_element.Animal;
-import agh.ics.oop.model.world_element.Grass;
-import agh.ics.oop.model.world_map.WorldMap;
+import agh.ics.oop.model.world.element.Animal;
+import agh.ics.oop.model.world.element.Grass;
+import agh.ics.oop.model.world.map.WorldMap;
 import agh.ics.oop.util.JungleGrassPositionsGenerator;
 import agh.ics.oop.util.SteppeGrassPositionsGenerator;
-import agh.ics.oop.util.Vector2d;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,7 +19,7 @@ public class Simulation {
     private JungleGrassPositionsGenerator jungleGrassPositionsGenerator;
     private SteppeGrassPositionsGenerator steppeGrassPositionsGenerator;
     private final int noOfGrass;
-    private  final int[] jungleToSteppeRatio = {0,0,0,0,1};
+    private final int[] jungleToSteppeRatio = {0,0,0,0,1};
     private final Random random = new Random();
 
     public Simulation(WorldMap map, List<Animal> animals, int noOfGrass) {
@@ -47,7 +46,7 @@ public class Simulation {
         }
     }
     public void run() throws Exception{
-        for (int i =0; i<10; i++) {
+        for (int i =0; i<8; i++) {
             days++;
             IO.println(days);
             daycycle();
@@ -66,8 +65,8 @@ public class Simulation {
             }
 
 
-//            IO.println(animal.getPosition());
-//            IO.print(animal.getFacingDirection() + "\n");
+            IO.println(animal.getPosition());
+            IO.print(animal.getFacingDirection() + "\n");
         }
 //        Grass Growth
         int place = 0;

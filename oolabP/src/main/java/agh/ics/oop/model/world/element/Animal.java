@@ -1,6 +1,5 @@
-package agh.ics.oop.model.world_element;
+package agh.ics.oop.model.world.element;
 
-import agh.ics.oop.World;
 import agh.ics.oop.util.Vector2d;
 
 import java.util.ArrayList;
@@ -55,7 +54,7 @@ public class Animal implements WorldElement {
         this.facingDirection = facingDirection;
     }
 
-    public  List<Integer> getGene() {
+    public List<Integer> getGene() {
         return gene;
     }
 

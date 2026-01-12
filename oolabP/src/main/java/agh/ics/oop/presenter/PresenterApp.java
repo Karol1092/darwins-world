@@ -1,7 +1,7 @@
 package agh.ics.oop.presenter;
 
 
-import agh.ics.oop.model.world_map.WorldMap;
+import agh.ics.oop.model.world.map.WorldMap;
 
 import javafx.application.Application;
 import javafx.scene.Scene;

@@ -1,10 +1,10 @@
-package agh.ics.oop.model.world_map;
+package agh.ics.oop.model.world.map;
 
 
-import agh.ics.oop.model.world_element.Animal;
-import agh.ics.oop.model.world_element.Grass;
-import agh.ics.oop.model.world_element.WorldDirections;
-import agh.ics.oop.model.world_element.WorldElement;
+import agh.ics.oop.model.world.element.Animal;
+import agh.ics.oop.model.world.element.Grass;
+import agh.ics.oop.model.world.element.WorldDirections;
+import agh.ics.oop.model.world.element.WorldElement;
 import agh.ics.oop.presenter.Observer;
 import agh.ics.oop.util.Vector2d;
 

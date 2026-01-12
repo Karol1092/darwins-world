@@ -2,9 +2,10 @@ package agh.ics.oop.presenter;
 
 
 
-import agh.ics.oop.model.world_element.Animal;
-import agh.ics.oop.model.world_element.WorldElement;
-import agh.ics.oop.model.world_map.WorldMap;
+import agh.ics.oop.model.world.element.Animal;
+import agh.ics.oop.model.world.element.WorldDirections;
+import agh.ics.oop.model.world.element.WorldElement;
+import agh.ics.oop.model.world.map.WorldMap;
 import agh.ics.oop.simulations.Simulation;
 import agh.ics.oop.util.Vector2d;
 import javafx.application.Platform;
@@ -116,8 +117,7 @@ public class Presenter implements Observer {
         WorldMap map = new WorldMap(10, 10);
         List<Animal> animals = new ArrayList<>(
                 List.of(
-                        new Animal(new Vector2d(2, 1)),
-                        new Animal(new Vector2d(3, 4))
+                        new Animal(new Vector2d(4, 3), WorldDirections.NORTH, new ArrayList<>(List.of(0, 0, 0, 0, 0, 0, 0, 1)), 100)
                 )
         );
 

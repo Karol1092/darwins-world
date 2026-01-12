@@ -1,4 +1,4 @@
-package agh.ics.oop.model.world_element;
+package agh.ics.oop.model.world.element;
 
 import agh.ics.oop.util.Vector2d;
 
