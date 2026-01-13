@@ -32,9 +32,11 @@ public class JungleGrassPositionsGenerator implements Iterable<Vector2d> {
             private int returned = 0;
 
             {
+                IO.println("jungle");
                 for (int i = 0; i < width; i++) {
                     for (int j = minHeight; j < (maxHeight+1); j++) {
                         indexes.add(new Vector2d(i, j));
+                        IO.println(new Vector2d(i, j));
                     }
                 }
             }
@@ -52,6 +54,8 @@ public class JungleGrassPositionsGenerator implements Iterable<Vector2d> {
             public boolean hasNext() {
                 return returned < count && !indexes.isEmpty();
             }
+
+
         };
     }
 }

@@ -14,13 +14,13 @@ public class SteppeGrassPositionsGenerator implements Iterable<Vector2d> {
     private final int jungleLowerIndex;
 
 
-    public SteppeGrassPositionsGenerator(int width, int height, int count) {
+    public SteppeGrassPositionsGenerator(int width,int jungleLowerIndex,int jungleUpperIndex, int height, int count) {
 
         this.width = width;
         this.height = height;
         this.count = count;
-        this.jungleLowerIndex = (int) (height*0.4);
-        this.jungleUpperIndex = (int) (height*0.6);
+        this.jungleLowerIndex = jungleLowerIndex;
+        this.jungleUpperIndex = jungleUpperIndex;
     }
 
     @Override
@@ -36,6 +36,7 @@ public class SteppeGrassPositionsGenerator implements Iterable<Vector2d> {
                     if (i<jungleLowerIndex || i > jungleUpperIndex) {
                         for (int j = 0; j < width; j++) {
                             indexes.add(new Vector2d(j, i));
+                            IO.println(new Vector2d(j, i));
                         }
                     }
                 }
