@@ -31,13 +31,20 @@ public class Presenter implements Observer {
 
 
     @FXML
-    private Label infoLabel;
-    @FXML
-    private TextField movesTextField;
-    @FXML
     private Label moveInfoLabel;
     @FXML
     private Canvas canvas;
+    @FXML
+    private TextField mapHeightTextField;
+    @FXML
+    private TextField mapWidthTextField;
+    @FXML
+    private TextField grassSpawnNumberTextField;
+    @FXML
+    private TextField grassEnergyTextField;
+    @FXML
+    private TextField energyLossTextField;
+
 
     private final static int CELL_SIZE = 40;
     private WorldMap worldMap;
@@ -55,7 +62,7 @@ public class Presenter implements Observer {
     }
 
     public void onSimulationStartClicked() {
-        WorldMap map = new WorldMap(10, 10);
+        WorldMap map = new WorldMap(getIntFromTextField(mapWidthTextField), getIntFromTextField(mapHeightTextField));
         List<Animal> animals = new ArrayList<>(
                 List.of(
                         new Animal(new Vector2d(4, 3), WorldDirections.NORTH, new ArrayList<>(List.of(0, 0, 0, 0, 0, 0, 0, 1)), 40),
@@ -63,7 +70,7 @@ public class Presenter implements Observer {
                 )
         );
 
-        Simulation simulation = new Simulation(map, animals, 10);
+        Simulation simulation = new Simulation(map, animals, getIntFromTextField(grassSpawnNumberTextField));
 
         try {
             startSimulationWindow(map);
@@ -93,6 +100,19 @@ public class Presenter implements Observer {
 
         presenter.drawMap(map);
         stage.show();
+    }
+
+    private int getIntFromTextField(TextField textField) {
+        String text = textField.getText();
+        if (text == null || text.trim().isEmpty()) {
+            text = textField.getPromptText();
+        }
+
+        try {
+            return Integer.parseInt(text);
+        } catch (NumberFormatException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public void drawMap(WorldMap worldMap){

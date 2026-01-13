@@ -29,6 +29,14 @@ public class WorldMap{
                 || grasses.containsKey(position);
     }
 
+    public Grass getGrass(Vector2d position) {
+        return grasses.getOrDefault(position, null);
+    }
+
+    public void removeGrass(Grass grass) {
+        grasses.remove(grass.getPosition(), grass);
+    }
+
     public List<WorldElement> getElements(Vector2d position) {
         List<WorldElement> elements = new ArrayList<>();
         if (isOccupied(position)) {
@@ -107,8 +115,8 @@ public class WorldMap{
         int x = ((animal.getPosition().getX() - lowerLeft.getX()) % range + range) % range + lowerLeft.getX();
         y=animal.getPosition().getY();
         animal.setPosition(new Vector2d(x,y));
-        mapChanged("Animal moved at : " + animal.getPosition() + "\n" + "Animal health: " + animal.getLifeEnergy());
         animals.computeIfAbsent(animal.getPosition(), k -> new ArrayList<>()).add(animal);
+        mapChanged("Animal moved at : " + animal.getPosition() + "\n" + "Animal health: " + animal.getLifeEnergy());
     }
 
     public Vector2d getLowerLeft() {

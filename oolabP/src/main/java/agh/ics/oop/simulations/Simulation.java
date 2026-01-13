@@ -23,6 +23,7 @@ public class Simulation implements Runnable {
     private final int noOfGrass;
     private final int[] jungleToSteppeRatio = {0,0,0,0,1};
     private final Random random = new Random();
+    private List<Animal> animalsToRemove = new ArrayList<>();
 
     public Simulation(WorldMap map, List<Animal> animals, int noOfGrass) {
         this.animals = animals;
@@ -59,36 +60,11 @@ public class Simulation implements Runnable {
         }
     }
     public void daycycle() throws Exception {
-//        Animals removal
-        List<Animal> animalsToRemove = new ArrayList<>();
-        System.out.println(animals);
-//        Animals moves
-        for (Animal animal : animals) {
-
-            if (animal.getLifeEnergy() <= 0) {
-                map.removeAnimal(animal);
-                animalsToRemove.add(animal);
-            }
-
-            map.move(animal, animal.getGene().get(((days - 1) % animal.getGene().size())));
-            animal.setLifeEnergy(animal.getLifeEnergy() - 10);
-
-            try{
-                Thread.sleep(500);
-            }catch (InterruptedException e){
-                e.printStackTrace();
-            }
+        removeDeadAnimals();
+        moveAliveAnimals();
+        animalsGrassEating();
 
 
-//            IO.println(animal.getPosition());
-//            IO.print(animal.getFacingDirection() + "\n");
-        }
-
-
-        for(Animal animalToRemove : animalsToRemove){
-            animals.remove(animalToRemove);
-            map.removeAnimal(animalToRemove);
-        }
 //        Grass Growth
         int place = 0;
         for (int i = 0; i < noOfGrass; i++) {
@@ -110,4 +86,43 @@ public class Simulation implements Runnable {
 //            }
 //        }
     }
+
+    private void removeDeadAnimals() {
+        for(Animal animalToRemove : animalsToRemove){
+            animals.remove(animalToRemove);
+            map.removeAnimal(animalToRemove);
+        }
+        animalsToRemove = new ArrayList<>();
+    }
+
+    private void moveAliveAnimals() throws Exception {
+        for (Animal animal : animals) {
+
+            if (animal.getLifeEnergy() <= 0) {
+                map.removeAnimal(animal);
+                animalsToRemove.add(animal);
+            }
+
+            map.move(animal, animal.getGene().get(((days - 1) % animal.getGene().size())));
+            animal.setLifeEnergy(animal.getLifeEnergy() - 10);
+
+            try{
+                Thread.sleep(500);
+            }catch (InterruptedException e){
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private void animalsGrassEating() {
+        for (Animal animal : animals) {
+            Grass grass = map.getGrass(animal.getPosition());
+            if (grass != null) {
+                map.removeGrass(grass);
+                grasses.remove(grass);
+                animal.setLifeEnergy(animal.getLifeEnergy() + 30);
+            }
+        }
+    }
+
 }
