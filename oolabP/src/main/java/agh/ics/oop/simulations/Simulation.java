@@ -10,7 +10,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-public class Simulation {
+import static java.lang.Math.max;
+
+public class Simulation implements Runnable {
 
     private int days = 0;
     private final List<Animal> animals;
@@ -45,18 +47,31 @@ public class Simulation {
             map.place(animal);
         }
     }
-    public void run() throws Exception{
+    public void run() {
         for (int i =0; i<8; i++) {
             days++;
             IO.println(days);
-            daycycle();
+            try {
+                daycycle();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
         }
     }
     public void daycycle() throws Exception {
+//        Animals removal
+        List<Animal> animalsToRemove = new ArrayList<>();
+        System.out.println(animals);
 //        Animals moves
-
         for (Animal animal : animals) {
+
+            if (animal.getLifeEnergy() <= 0) {
+                map.removeAnimal(animal);
+                animalsToRemove.add(animal);
+            }
+
             map.move(animal, animal.getGene().get(((days - 1) % animal.getGene().size())));
+            animal.setLifeEnergy(animal.getLifeEnergy() - 10);
 
             try{
                 Thread.sleep(500);
@@ -65,8 +80,14 @@ public class Simulation {
             }
 
 
-            IO.println(animal.getPosition());
-            IO.print(animal.getFacingDirection() + "\n");
+//            IO.println(animal.getPosition());
+//            IO.print(animal.getFacingDirection() + "\n");
+        }
+
+
+        for(Animal animalToRemove : animalsToRemove){
+            animals.remove(animalToRemove);
+            map.removeAnimal(animalToRemove);
         }
 //        Grass Growth
         int place = 0;

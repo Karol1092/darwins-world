@@ -10,15 +10,20 @@ import agh.ics.oop.simulations.Simulation;
 import agh.ics.oop.util.Vector2d;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.geometry.VPos;
+import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.TextAlignment;
+import javafx.stage.Stage;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,9 +40,59 @@ public class Presenter implements Observer {
     private Canvas canvas;
 
     private final static int CELL_SIZE = 40;
-    WorldMap worldMap;
+    private WorldMap worldMap;
+
     public void setWorldMap(WorldMap worldMap) {
         this.worldMap = worldMap;
+    }
+
+    @Override
+    public void mapChanged(WorldMap newWorldMap, String Message) {
+        Platform.runLater(()->{
+            drawMap(newWorldMap);
+            moveInfoLabel.setText(moveInfoLabel.getText()+"\n"+ Message);
+        });
+    }
+
+    public void onSimulationStartClicked() {
+        WorldMap map = new WorldMap(10, 10);
+        List<Animal> animals = new ArrayList<>(
+                List.of(
+                        new Animal(new Vector2d(4, 3), WorldDirections.NORTH, new ArrayList<>(List.of(0, 0, 0, 0, 0, 0, 0, 1)), 40),
+                        new Animal(new Vector2d(1, 9), WorldDirections.SOUTH, new ArrayList<>(List.of(0, 0, 0, 0, 0, 0, 0, 0)), 100)
+                )
+        );
+
+        Simulation simulation = new Simulation(map, animals, 10);
+
+        try {
+            startSimulationWindow(map);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return;
+        }
+
+        Thread simulationThread = new Thread(simulation);
+        simulationThread.setDaemon(true);
+        simulationThread.start();
+    }
+
+    private void startSimulationWindow(WorldMap map) throws IOException {
+        FXMLLoader loader = new FXMLLoader();
+        loader.setLocation(getClass().getClassLoader().getResource("new_simulation.fxml"));
+        BorderPane viewRoot = loader.load();
+
+        Presenter presenter = loader.getController();
+
+        presenter.setWorldMap(map);
+        map.addObserver(presenter);
+
+        Stage stage = new Stage();
+        stage.setTitle("Simulation Window");
+        stage.setScene(new Scene(viewRoot));
+
+        presenter.drawMap(map);
+        stage.show();
     }
 
     public void drawMap(WorldMap worldMap){
@@ -58,6 +113,7 @@ public class Presenter implements Observer {
     }
     private void clearGrid(){
         GraphicsContext gc = canvas.getGraphicsContext2D();
+        gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
         gc.setFill(Color.LIGHTGREEN);
         gc.fillRect(0,0, canvas.getWidth(), canvas.getHeight());
     }
@@ -104,44 +160,5 @@ public class Presenter implements Observer {
         graphics.setTextBaseline(VPos.CENTER);
         graphics.setFont(new Font("Arial", size));
         graphics.setFill(black);
-    }
-    @Override
-    public void mapChanged(WorldMap worldmap, String Message) {
-        Platform.runLater(()->{
-            drawMap(worldMap);
-            moveInfoLabel.setText(moveInfoLabel.getText()+"\n"+ Message);
-        });
-    }
-
-    public void onSimulationStartClicked() {
-        WorldMap map = new WorldMap(10, 10);
-        List<Animal> animals = new ArrayList<>(
-                List.of(
-                        new Animal(new Vector2d(4, 3), WorldDirections.NORTH, new ArrayList<>(List.of(0, 0, 0, 0, 0, 0, 0, 1)), 100)
-                )
-        );
-
-        Simulation simulation = new Simulation(map, animals, 5);
-        PresenterApp simulationApp = new PresenterApp();
-
-        // 1️⃣ Tworzenie okna – TYLKO JavaFX Thread
-        Platform.runLater(() -> {
-            try {
-                simulationApp.createStage(map);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        });
-
-        // 2️⃣ Symulacja – osobny wątek
-        Thread simulationThread = new Thread(() -> {
-            try {
-                simulation.run();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        });
-        simulationThread.setDaemon(true);
-        simulationThread.start();
     }
 }

@@ -63,8 +63,21 @@ public class WorldMap{
         }
     }
 
+    public void removeAnimal(Animal animal) {
+        Vector2d position = animal.getPosition();
+        List<Animal> animalsAtPosition = animals.get(position);
+
+        if (animalsAtPosition != null) {
+            animalsAtPosition.remove(animal);
+
+            if (animalsAtPosition.isEmpty()) {
+                animals.remove(position);
+            }
+        }
+    }
+
     public void move(Animal animal,int rotation) throws Exception{
-        animals.remove(animal.getPosition());
+        removeAnimal(animal);
         animal.move(rotation);
         WorldDirections facingDirection = animal.getFacingDirection();
         int y = animal.getPosition().getY();
@@ -94,7 +107,7 @@ public class WorldMap{
         int x = ((animal.getPosition().getX() - lowerLeft.getX()) % range + range) % range + lowerLeft.getX();
         y=animal.getPosition().getY();
         animal.setPosition(new Vector2d(x,y));
-        mapChanged("Animal moved at : " + animal.getPosition());
+        mapChanged("Animal moved at : " + animal.getPosition() + "\n" + "Animal health: " + animal.getLifeEnergy());
         animals.computeIfAbsent(animal.getPosition(), k -> new ArrayList<>()).add(animal);
     }
 

@@ -33,6 +33,7 @@ public class Animal implements WorldElement {
     public void setLifeEnergy(int lifeEnergy) {
         this.lifeEnergy = lifeEnergy;
     }
+
     public int getLifeEnergy(){
         return lifeEnergy;
     }
