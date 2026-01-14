@@ -33,7 +33,6 @@ public class PresenterApp extends Application {
         BorderPane viewRoot = loader.load();
         Presenter presenter = loader.getController();
 
-        presenter.setWorldMap(map);
         map.addObserver(presenter);
         Stage stage = new Stage();
         configureStage(stage,viewRoot);

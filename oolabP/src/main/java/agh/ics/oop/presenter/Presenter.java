@@ -7,6 +7,7 @@ import agh.ics.oop.model.world.element.WorldDirections;
 import agh.ics.oop.model.world.element.WorldElement;
 import agh.ics.oop.model.world.map.WorldMap;
 import agh.ics.oop.simulations.Simulation;
+import agh.ics.oop.util.SimulationConfig;
 import agh.ics.oop.util.Vector2d;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -30,28 +31,28 @@ import java.util.List;
 public class Presenter implements Observer {
 
 
-    @FXML
-    private Label moveInfoLabel;
-    @FXML
-    private Canvas canvas;
-    @FXML
-    private TextField mapHeightTextField;
-    @FXML
-    private TextField mapWidthTextField;
-    @FXML
-    private TextField grassSpawnNumberTextField;
-    @FXML
-    private TextField grassEnergyTextField;
-    @FXML
-    private TextField energyLossTextField;
+    @FXML private Label moveInfoLabel;
+    @FXML private Canvas canvas;
 
+    @FXML private TextField mapHeightTextField;
+    @FXML private TextField mapWidthTextField;
+    @FXML private TextField grassNumberTextField;
+    @FXML private TextField grassSpawnNumberTextField;
+
+    @FXML private TextField grassEnergyTextField;
+    @FXML private TextField energyLossTextField;
+    @FXML private TextField minimumEnergyTextField;
+    @FXML private TextField reproduceEnergyLossTextField;
+
+    @FXML private TextField animalNumberField;
+    @FXML private TextField startEnergyTextField;
+    @FXML private TextField offspringEnergyTextField;
+
+    @FXML private TextField minimumMutationsTextField;
+    @FXML private TextField maximumMutationsTextField;
+    @FXML private TextField geneLengthTextField;
 
     private final static int CELL_SIZE = 40;
-    private WorldMap worldMap;
-
-    public void setWorldMap(WorldMap worldMap) {
-        this.worldMap = worldMap;
-    }
 
     @Override
     public void mapChanged(WorldMap newWorldMap, String Message) {
@@ -62,18 +63,12 @@ public class Presenter implements Observer {
     }
 
     public void onSimulationStartClicked() {
-        WorldMap map = new WorldMap(getIntFromTextField(mapWidthTextField), getIntFromTextField(mapHeightTextField));
-        List<Animal> animals = new ArrayList<>(
-                List.of(
-                        new Animal(new Vector2d(4, 3), WorldDirections.NORTH, new ArrayList<>(List.of(0, 0, 0, 0, 0, 0, 0, 1)), 40),
-                        new Animal(new Vector2d(1, 9), WorldDirections.SOUTH, new ArrayList<>(List.of(0, 0, 0, 0, 0, 0, 0, 0)), 100)
-                )
-        );
+        SimulationConfig config = getConfigFromUI();
 
-        Simulation simulation = new Simulation(map, animals, getIntFromTextField(grassSpawnNumberTextField));
+        Simulation simulation = new Simulation(config);
 
         try {
-            startSimulationWindow(map);
+            startSimulationWindow(simulation);
         } catch (IOException e) {
             e.printStackTrace();
             return;
@@ -84,14 +79,14 @@ public class Presenter implements Observer {
         simulationThread.start();
     }
 
-    private void startSimulationWindow(WorldMap map) throws IOException {
+    private void startSimulationWindow(Simulation simulation) throws IOException {
         FXMLLoader loader = new FXMLLoader();
         loader.setLocation(getClass().getClassLoader().getResource("new_simulation.fxml"));
         BorderPane viewRoot = loader.load();
 
         Presenter presenter = loader.getController();
 
-        presenter.setWorldMap(map);
+        WorldMap map = simulation.getWorldMap();
         map.addObserver(presenter);
 
         Stage stage = new Stage();
@@ -113,6 +108,41 @@ public class Presenter implements Observer {
         } catch (NumberFormatException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private SimulationConfig getConfigFromUI() {
+        var mapConfig = new SimulationConfig.Map(
+                getIntFromTextField(mapHeightTextField),
+                getIntFromTextField(mapWidthTextField),
+                getIntFromTextField(grassNumberTextField),
+                getIntFromTextField(grassSpawnNumberTextField)
+        );
+
+        var energyConfig = new SimulationConfig.Energy(
+                getIntFromTextField(grassEnergyTextField),
+                getIntFromTextField(energyLossTextField),
+                getIntFromTextField(minimumEnergyTextField),
+                getIntFromTextField(reproduceEnergyLossTextField)
+        );
+
+        var animalConfig = new SimulationConfig.Animal(
+                getIntFromTextField(animalNumberField),
+                getIntFromTextField(startEnergyTextField),
+                getIntFromTextField(offspringEnergyTextField)
+        );
+
+        var genotypeConfig = new SimulationConfig.Genotype(
+                getIntFromTextField(minimumMutationsTextField),
+                getIntFromTextField(maximumMutationsTextField),
+                getIntFromTextField(geneLengthTextField)
+        );
+
+        return new SimulationConfig(
+                mapConfig,
+                energyConfig,
+                animalConfig,
+                genotypeConfig
+        );
     }
 
     public void drawMap(WorldMap worldMap){
