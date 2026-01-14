@@ -9,121 +9,57 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.layout.HBox?>
 
-<BorderPane minHeight="850.0"
+<BorderPane minHeight="550.0"
             minWidth="850.0"
             xmlns="http://javafx.com/javafx/25"
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="agh.ics.oop.presenter.Presenter"
             stylesheets="simulation.css">
    <center>
-      <VBox styleClass="box">
-         <HBox alignment="CENTER">
-            <Label fx:id="mapProperty" text="Map properties"/>
-         </HBox>
+      <VBox styleClass="box" alignment="CENTER">
+          <HBox styleClass="box" alignment="CENTER">
+              <VBox styleClass="box" alignment="CENTER">
+                 <HBox alignment="CENTER"><Label fx:id="mapProperty" text="Map properties"/></HBox>
+                 <HBox alignment="CENTER"><Label fx:id="mapHeightLabel" text="Height: "/><TextField fx:id="mapHeightTextField" promptText="10"/></HBox>
+                 <HBox alignment="CENTER"><Label fx:id="mapWidthLabel" text="Width: "/><TextField fx:id="mapWidthTextField" promptText="10"/></HBox>
+                 <HBox alignment="CENTER"><Label fx:id="grassNumberLabel" text="Number of grass: "/><TextField fx:id="grassNumberTextField" promptText="20"/></HBox>
+                 <HBox alignment="CENTER"><Label fx:id="grassSpawnNumberLabel" text="Number of grass spawning each day: "/><TextField fx:id="grassSpawnNumberTextField" promptText="3"/></HBox>
+              </VBox>
 
-         <HBox alignment="CENTER">
-            <Label fx:id="mapHeightLabel" text="Height: "/>
-            <TextField fx:id="mapHeightTextField" promptText="10"/>
-         </HBox>
+              <VBox styleClass="box" alignment="CENTER">
+                 <HBox alignment="CENTER"><Label fx:id="energyProperties" text="Energy properties"/></HBox>
+                 <HBox alignment="CENTER"><Label fx:id="grassEnergyLabel" text="Grass energy Profit: "/><TextField fx:id="grassEnergyTextField" promptText="30"/></HBox>
+                 <HBox alignment="CENTER"><Label fx:id="energyLossLabel" text="Daily energy loss: "/><TextField fx:id="energyLossTextField" promptText="10"/></HBox>
+                 <HBox alignment="CENTER"><Label fx:id="minimumEnergyLabel" text="Minimum energy to reproduce: "/><TextField fx:id="minimumEnergyTextField" promptText="50"/></HBox>
+                 <HBox alignment="CENTER"><Label fx:id="reproduceEnergyLossLabel" text="Energy loss due to reproduction: "/><TextField fx:id="reproduceEnergyLossTextField" promptText="25"/></HBox>
+              </VBox>
+          </HBox>
 
-         <HBox alignment="CENTER">
-            <Label fx:id="mapWidthLabel" text="Width: "/>
-            <TextField fx:id="mapWidthTextField" promptText="10"/>
-         </HBox>
+          <HBox styleClass="box" alignment="CENTER">
+              <VBox styleClass="box" alignment="CENTER">
+                 <HBox alignment="CENTER"><Label fx:id="animalLabel" text="Animal properties"/></HBox>
+                 <HBox alignment="CENTER"><Label fx:id="animalNumberLabel" text="Number of animals: "/><TextField fx:id="animalNumberField" promptText="2"/></HBox>
+                 <HBox alignment="CENTER"><Label fx:id="startEnergyLabel" text="Animal start energy: "/><TextField fx:id="startEnergyTextField" promptText="70"/></HBox>
+                 <HBox alignment="CENTER"><Label fx:id="offspringEnergyLabel" text="Offspring start energy: "/><TextField fx:id="offspringEnergyTextField" promptText="50"/></HBox>
+              </VBox>
 
-         <HBox alignment="CENTER">
-            <Label fx:id="grassNumberLabel" text="Number of grass: "/>
-            <TextField fx:id="grassNumberTextField" promptText="20"/>
-         </HBox>
+              <VBox styleClass="box" alignment="CENTER">
+                 <HBox alignment="CENTER"><Label fx:id="geneLabel" text="Genes properties"/></HBox>
+                 <HBox alignment="CENTER"><Label fx:id="minimumMutationsLabel" text="Minimum number of mutations: "/><TextField fx:id="minimumMutationsTextField" promptText="1"/></HBox>
+                 <HBox alignment="CENTER"><Label fx:id="maximumMutationsLabel" text="Maximum number of mutations: "/><TextField fx:id="maximumMutationsTextField" promptText="3"/></HBox>
+                 <HBox alignment="CENTER"><Label fx:id="geneLengthLabel" text="Genes length: "/><TextField fx:id="geneLengthTextField" promptText="10"/></HBox>
+              </VBox>
+          </HBox>
 
-         <HBox alignment="CENTER">
-            <Label fx:id="grassSpawnNumberLabel" text="Number of grass spawning each day: "/>
-            <TextField fx:id="grassSpawnNumberTextField" promptText="3"/>
-         </HBox>
-
-         <HBox alignment="CENTER">
-            <Label fx:id="energyProperties" text="Energy properties"/>
-         </HBox>
-
-         <HBox alignment="CENTER">
-            <Label fx:id="grassEnergyLabel" text="Grass energy Profit: "/>
-            <TextField fx:id="grassEnergyTextField" promptText="30"/>
-         </HBox>
-
-         <HBox alignment="CENTER">
-            <Label fx:id="energyLossLabel" text="Daily energy loss: "/>
-            <TextField fx:id="energyLossTextField" promptText="10"/>
-         </HBox>
-
-         <HBox alignment="CENTER">
-            <Label fx:id="minimumEnergyLabel" text="Minimum energy to reproduce: "/>
-            <TextField fx:id="minimumEnergyTextField" promptText="50"/>
-         </HBox>
-
-         <HBox alignment="CENTER">
-            <Label fx:id="reproduceEnergyLossLabel" text="Energy loss due to reproduction: "/>
-            <TextField fx:id="reproduceEnergyLossTextField" promptText="25"/>
-         </HBox>
-
-         <HBox alignment="CENTER">
-            <Label fx:id="animalLabel" text="Animal properties"/>
-         </HBox>
-
-         <HBox alignment="CENTER">
-            <Label fx:id="animalNumberLabel" text="Number of animals: "/>
-            <TextField fx:id="animalNumberField" promptText="2"/>
-         </HBox>
-
-         <HBox alignment="CENTER">
-            <Label fx:id="startEnergyLabel" text="Animal start energy: "/>
-            <TextField fx:id="startEnergyTextField" promptText="70"/>
-         </HBox>
-
-         <HBox alignment="CENTER">
-            <Label fx:id="offspringEnergyLabel" text="Offspring start energy: "/>
-            <TextField fx:id="offspringEnergyTextField" promptText="50"/>
-         </HBox>
-
-         <HBox alignment="CENTER">
-            <Label fx:id="geneLabel" text="Genes properties"/>
-         </HBox>
-
-         <HBox alignment="CENTER">
-            <Label fx:id="minimumMutationsLabel" text="Minimum number of mutations: "/>
-            <TextField fx:id="minimumMutationsTextField" promptText="1"/>
-         </HBox>
-
-         <HBox alignment="CENTER">
-            <Label fx:id="maximumMutationsLabel" text="Maximum number of mutations: "/>
-            <TextField fx:id="maximumMutationsTextField" promptText="3"/>
-         </HBox>
-
-         <HBox alignment="CENTER">
-            <Label fx:id="geneLengthLabel" text="Genes length: "/>
-            <TextField fx:id="geneLengthTextField" promptText="10"/>
-         </HBox>
-
-         <HBox alignment="CENTER">
-            <Button mnemonicParsing="false" onAction="#onSimulationStartClicked" text="Start default simulation"/>
-         </HBox>
-
-         <HBox alignment="CENTER">
-            <Label fx:id="ModificationLabel" text="Modified simulation properties"/>
-         </HBox>
-
-         <HBox alignment="CENTER">
-            <Label fx:id="burningTimeLabel" text="Animal/grass burning time (days): "/>
-            <TextField fx:id="burningTimeTextField" promptText="3"/>
-         </HBox>
-
-         <HBox alignment="CENTER">
-            <Label fx:id="fireProbabilityLabel" text="Fire ignition probability: "/>
-            <TextField fx:id="fireProbabilityTextField" promptText="0.05"/>
-         </HBox>
-
-         <HBox alignment="CENTER">
-            <Button mnemonicParsing="false" text="Start modified simulation"/>
-         </HBox>
+          <HBox styleClass="box" alignment="CENTER">
+              <VBox styleClass="box" alignment="CENTER">
+                 <HBox alignment="CENTER"><Button mnemonicParsing="false" onAction="#onSimulationStartClicked" text="Start default simulation"/></HBox>
+                 <HBox alignment="CENTER"><Label fx:id="ModificationLabel" text="Modified simulation properties"/></HBox>
+                 <HBox alignment="CENTER"><Label fx:id="burningTimeLabel" text="Animal/grass burning time (days): "/><TextField fx:id="burningTimeTextField" promptText="3"/></HBox>
+                 <HBox alignment="CENTER"><Label fx:id="fireProbabilityLabel" text="Fire ignition probability: "/><TextField fx:id="fireProbabilityTextField" promptText="0.05"/></HBox>
+                 <HBox alignment="CENTER"><Button mnemonicParsing="false" text="Start modified simulation"/></HBox>
+              </VBox>
+          </HBox>
       </VBox>
    </center>
 </BorderPane>
