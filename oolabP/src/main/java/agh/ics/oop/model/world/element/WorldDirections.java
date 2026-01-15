@@ -1,4 +1,4 @@
-package agh.ics.oop.model.world_element;
+package agh.ics.oop.model.world.element;
 
 import agh.ics.oop.util.Vector2d;
 
@@ -45,7 +45,7 @@ public enum WorldDirections {
             case SOUTH -> NORTH;
             case SOUTH_WEST -> NORTH_EAST;
             case WEST -> EAST;
-            case NORTH_WEST -> SOUTH_WEST;
+            case NORTH_WEST -> SOUTH_EAST;
         };
     }
     public static Vector2d toUnitVector(WorldDirections direction) {

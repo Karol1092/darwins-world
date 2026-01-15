@@ -1,10 +1,10 @@
-package agh.ics.oop.model.world_map;
+package agh.ics.oop.model.world.map;
 
 
-import agh.ics.oop.model.world_element.Animal;
-import agh.ics.oop.model.world_element.Grass;
-import agh.ics.oop.model.world_element.WorldDirections;
-import agh.ics.oop.model.world_element.WorldElement;
+import agh.ics.oop.model.world.element.Animal;
+import agh.ics.oop.model.world.element.Grass;
+import agh.ics.oop.model.world.element.WorldDirections;
+import agh.ics.oop.model.world.element.WorldElement;
 import agh.ics.oop.presenter.Observer;
 import agh.ics.oop.util.Vector2d;
 
@@ -27,6 +27,14 @@ public class WorldMap{
         List<Animal> animalsAtPosition = animals.get(position);
         return (animalsAtPosition != null && !animalsAtPosition.isEmpty())
                 || grasses.containsKey(position);
+    }
+
+    public Grass getGrass(Vector2d position) {
+        return grasses.getOrDefault(position, null);
+    }
+
+    public void removeGrass(Grass grass) {
+        grasses.remove(grass.getPosition(), grass);
     }
 
     public List<WorldElement> getElements(Vector2d position) {
@@ -62,6 +70,20 @@ public class WorldMap{
             animals.computeIfAbsent(element.getPosition(), k  -> new ArrayList<>()).add((Animal) element);
         }
     }
+
+    public void removeAnimal(Animal animal) {
+        Vector2d position = animal.getPosition();
+        List<Animal> animalsAtPosition = animals.get(position);
+
+        if (animalsAtPosition != null) {
+            animalsAtPosition.remove(animal);
+
+            if (animalsAtPosition.isEmpty()) {
+                animals.remove(position);
+            }
+        }
+    }
+
     private int verticalPositionCheck(Animal animal, WorldDirections facingDirection) throws Exception {
         int y = animal.getPosition().getY();
         if (y > upperRight.getY() || y < lowerLeft.getY()) {
@@ -75,7 +97,7 @@ public class WorldMap{
         return animal.getPosition().getY();
     }
     public void move(Animal animal,int rotation) throws Exception{
-        animals.remove(animal.getPosition());
+        removeAnimal(animal);
         animal.move(rotation);
         WorldDirections facingDirection = animal.getFacingDirection();
         int y = verticalPositionCheck(animal,facingDirection);
@@ -83,8 +105,8 @@ public class WorldMap{
         int x = ((animal.getPosition().getX() - lowerLeft.getX()) % range + range) % range + lowerLeft.getX();
 
         animal.setPosition(new Vector2d(x,y));
-        mapChanged("Animal moved at : " + animal.getPosition());
         animals.computeIfAbsent(animal.getPosition(), k -> new ArrayList<>()).add(animal);
+        mapChanged("Animal moved at : " + animal.getPosition() + "\n" + "Animal health: " + animal.getLifeEnergy());
     }
 
     public Vector2d getLowerLeft() {

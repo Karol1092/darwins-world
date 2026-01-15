@@ -2,22 +2,29 @@ package agh.ics.oop.presenter;
 
 
 
-import agh.ics.oop.model.world_element.Animal;
-import agh.ics.oop.model.world_element.WorldElement;
-import agh.ics.oop.model.world_map.WorldMap;
+import agh.ics.oop.model.world.element.Animal;
+import agh.ics.oop.model.world.element.WorldDirections;
+import agh.ics.oop.model.world.element.WorldElement;
+import agh.ics.oop.model.world.map.WorldMap;
 import agh.ics.oop.simulations.Simulation;
+import agh.ics.oop.util.SimulationConfig;
 import agh.ics.oop.util.Vector2d;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.geometry.VPos;
+import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.TextAlignment;
+import javafx.stage.Stage;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -57,6 +64,7 @@ public class Presenter implements Observer {
     }
     private void clearGrid(){
         GraphicsContext gc = canvas.getGraphicsContext2D();
+        gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
         gc.setFill(Color.LIGHTGREEN);
         gc.fillRect(0,0, canvas.getWidth(), canvas.getHeight());
     }
@@ -123,7 +131,7 @@ public class Presenter implements Observer {
                 )
         );
 
-        Simulation simulation = new Simulation(map, animals, 5);
+        Simulation simulation = new Simulation(conf);
         PresenterApp simulationApp = new PresenterApp();
         Platform.runLater(() -> {
             try {

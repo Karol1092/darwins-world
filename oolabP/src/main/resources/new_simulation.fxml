@@ -6,9 +6,14 @@
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.VBox?>
 
-<BorderPane minHeight="550.0" minWidth="850.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="agh.ics.oop.presenter.Presenter">
+<BorderPane minHeight="550.0"
+            minWidth="850.0"
+            xmlns="http://javafx.com/javafx/25"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="agh.ics.oop.presenter.Presenter"
+            stylesheets="new_simulation.css">
     <center>
-        <VBox BorderPane.alignment="CENTER">
+        <VBox styleClass="box" BorderPane.alignment="CENTER">
             <children>
                 <Canvas fx:id="canvas" height="200.0" width="200.0" />
             </children>
