@@ -108,6 +108,8 @@ public class Presenter implements Observer {
     public void mapChanged(WorldMap worldmap, String Message) {
         Platform.runLater(()->{
             drawMap(worldMap);
+//            funkcja zliczająca statystyki
+//                    tutaj;
             moveInfoLabel.setText(moveInfoLabel.getText()+"\n"+ Message);
         });
     }

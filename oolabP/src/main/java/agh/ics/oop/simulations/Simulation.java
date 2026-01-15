@@ -43,23 +43,7 @@ public class Simulation {
         this.steppeIterator  = new SteppeGrassPositionsGenerator(width,
                 minHeight,maxHeight,height,mapSize-jungleSize).iterator();
 //      trawa startowa:
-        int place =0;
-        for (int i = 0; i < noOfGrass; i++) {
-            place = random.nextInt(jungleToSteppeRatio.length);
-            if (jungleToSteppeRatio[place]==0){
-
-                if (jungleIterator.hasNext()){
-                    map.place(new Grass(jungleIterator.next()));
-                    IO.println("jungle");
-                }else if (steppeIterator.hasNext()) {
-                    map.place(new Grass(steppeIterator.next()));
-                    IO.println("steppe");
-                }
-            }else if (steppeIterator.hasNext()){
-                map.place(new Grass(steppeIterator.next()));
-                IO.println("steppe");
-            }
-        }
+        grassPlacement();
 //      zwierzęta startowe:
         for (Animal animal : animals) {
             map.place(animal);
@@ -86,21 +70,21 @@ public class Simulation {
             }
         }
 //      Grass Growth
+        grassPlacement();
+    }
+
+    private void grassPlacement() {
         int place =0;
         for (int i = 0; i < noOfGrass; i++) {
             place = random.nextInt(jungleToSteppeRatio.length);
             if (jungleToSteppeRatio[place]==0){
-
                 if (jungleIterator.hasNext()){
                     map.place(new Grass(jungleIterator.next()));
-                    IO.println("jungle");
                 }else if (steppeIterator.hasNext()) {
                     map.place(new Grass(steppeIterator.next()));
-                    IO.println("steppe");
                 }
             }else if (steppeIterator.hasNext()){
                 map.place(new Grass(steppeIterator.next()));
-                IO.println("steppe");
             }
         }
     }
