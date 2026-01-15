@@ -9,8 +9,8 @@ import agh.ics.oop.util.SimulationConfig;
 import agh.ics.oop.util.SteppeGrassPositionsGenerator;
 import agh.ics.oop.util.Vector2d;
 
-import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
@@ -23,7 +23,7 @@ public class Simulation implements Runnable {
     private final List<Grass> grasses = new ArrayList<>();
     private final WorldMap map;
     private Iterator<Vector2d> jungleIterator;
-    private  Iterator<Vector2d> steppeIterator;
+    private Iterator<Vector2d> steppeIterator;
     private final int noOfGrass;
     private final int[] jungleToSteppeRatio = {0,0,0,0,1};
     private final Random random = new Random();
@@ -36,10 +36,8 @@ public class Simulation implements Runnable {
                         new Animal(new Vector2d(1, 9), WorldDirections.SOUTH, new ArrayList<>(List.of(0, 0, 0, 0, 0, 0, 0, 0)), config.animal().energyAtStart())
                 ));
 
-    public Simulation(WorldMap map, List<Animal> animals, int noOfGrass) {
-        this.animals = animals;
-        this.map = map;
-        this.noOfGrass = noOfGrass;
+        this.map = new WorldMap(config.map().width(), config.map().height());
+        this.noOfGrass = config.map().numberOfGrassSpawn();
 //      wymiary mapy:
         int height = map.getUpperRight().getY()+1;
         int width = map.getUpperRight().getX()+1;
@@ -69,7 +67,6 @@ public class Simulation implements Runnable {
     public void run() {
         for (int i =0; i<8; i++) {
             days++;
-            IO.println(days);
             try {
                 daycycle();
             } catch (Exception e) {
@@ -82,15 +79,7 @@ public class Simulation implements Runnable {
         moveAliveAnimals();
         animalsGrassEating();
         grassPlacement();
-            try{
-                Thread.sleep(500);
-            }catch (InterruptedException e){
-                e.printStackTrace();
-            }
         }
-//      Grass Growth
-
-    }
 
     private void grassPlacement() {
         int place =0;
@@ -106,15 +95,6 @@ public class Simulation implements Runnable {
                 map.place(new Grass(steppeIterator.next()));
             }
         }
-//        Grass test
-
-//        for (int i =0;i<map.getUpperRight().getX();i++) {
-//            for (int j = 0; j < map.getUpperRight().getY(); j++) {
-//                if (map.isOccupied(new Vector2d(i, j)) && map.getElements(new Vector2d(i, j)).getFirst() instanceof Grass) {
-//                    IO.println("Grass at: " + new Vector2d(i, j));
-//                }
-//            }
-//        }
     }
 
     private void removeDeadAnimals() {

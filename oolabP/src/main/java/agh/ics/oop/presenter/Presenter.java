@@ -31,19 +31,118 @@ import java.util.List;
 public class Presenter implements Observer {
 
 
-    @FXML
-    private Label infoLabel;
-    @FXML
-    private TextField movesTextField;
-    @FXML
-    private Label moveInfoLabel;
-    @FXML
-    private Canvas canvas;
+    @FXML private Label moveInfoLabel;
+    @FXML private Canvas canvas;
+
+    @FXML private TextField mapHeightTextField;
+    @FXML private TextField mapWidthTextField;
+    @FXML private TextField grassNumberTextField;
+    @FXML private TextField grassSpawnNumberTextField;
+
+    @FXML private TextField grassEnergyTextField;
+    @FXML private TextField energyLossTextField;
+    @FXML private TextField minimumEnergyTextField;
+    @FXML private TextField reproduceEnergyLossTextField;
+
+    @FXML private TextField animalNumberField;
+    @FXML private TextField startEnergyTextField;
+    @FXML private TextField offspringEnergyTextField;
+
+    @FXML private TextField minimumMutationsTextField;
+    @FXML private TextField maximumMutationsTextField;
+    @FXML private TextField geneLengthTextField;
 
     private final static int CELL_SIZE = 40;
-    WorldMap worldMap;
-    public void setWorldMap(WorldMap worldMap) {
-        this.worldMap = worldMap;
+
+    @Override
+    public void mapChanged(WorldMap newWorldMap, String Message) {
+        Platform.runLater(()->{
+            drawMap(newWorldMap);
+            moveInfoLabel.setText(moveInfoLabel.getText()+"\n"+ Message);
+        });
+    }
+
+    public void onSimulationStartClicked() {
+        SimulationConfig config = getConfigFromUI();
+
+        Simulation simulation = new Simulation(config);
+
+        try {
+            startSimulationWindow(simulation);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return;
+        }
+
+        Thread simulationThread = new Thread(simulation);
+        simulationThread.setDaemon(true);
+        simulationThread.start();
+    }
+
+    private void startSimulationWindow(Simulation simulation) throws IOException {
+        FXMLLoader loader = new FXMLLoader();
+        loader.setLocation(getClass().getClassLoader().getResource("new_simulation.fxml"));
+        BorderPane viewRoot = loader.load();
+
+        Presenter presenter = loader.getController();
+
+        WorldMap map = simulation.getWorldMap();
+        map.addObserver(presenter);
+
+        Stage stage = new Stage();
+        stage.setTitle("Simulation Window");
+        stage.setScene(new Scene(viewRoot));
+
+        presenter.drawMap(map);
+        stage.show();
+    }
+
+    private int getIntFromTextField(TextField textField) {
+        String text = textField.getText();
+        if (text == null || text.trim().isEmpty()) {
+            text = textField.getPromptText();
+        }
+
+        try {
+            return Integer.parseInt(text);
+        } catch (NumberFormatException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private SimulationConfig getConfigFromUI() {
+        var mapConfig = new SimulationConfig.Map(
+                getIntFromTextField(mapHeightTextField),
+                getIntFromTextField(mapWidthTextField),
+                getIntFromTextField(grassNumberTextField),
+                getIntFromTextField(grassSpawnNumberTextField)
+        );
+
+        var energyConfig = new SimulationConfig.Energy(
+                getIntFromTextField(grassEnergyTextField),
+                getIntFromTextField(energyLossTextField),
+                getIntFromTextField(minimumEnergyTextField),
+                getIntFromTextField(reproduceEnergyLossTextField)
+        );
+
+        var animalConfig = new SimulationConfig.Animal(
+                getIntFromTextField(animalNumberField),
+                getIntFromTextField(startEnergyTextField),
+                getIntFromTextField(offspringEnergyTextField)
+        );
+
+        var genotypeConfig = new SimulationConfig.Genotype(
+                getIntFromTextField(minimumMutationsTextField),
+                getIntFromTextField(maximumMutationsTextField),
+                getIntFromTextField(geneLengthTextField)
+        );
+
+        return new SimulationConfig(
+                mapConfig,
+                energyConfig,
+                animalConfig,
+                genotypeConfig
+        );
     }
 
     public void drawMap(WorldMap worldMap){
@@ -111,43 +210,5 @@ public class Presenter implements Observer {
         graphics.setTextBaseline(VPos.CENTER);
         graphics.setFont(new Font("Arial", size));
         graphics.setFill(black);
-    }
-    @Override
-    public void mapChanged(WorldMap worldmap, String Message) {
-        Platform.runLater(()->{
-            drawMap(worldMap);
-//            funkcja zliczająca statystyki
-//                    tutaj;
-            moveInfoLabel.setText(moveInfoLabel.getText()+"\n"+ Message);
-        });
-    }
-
-    public void onSimulationStartClicked() {
-        WorldMap map = new WorldMap(5, 5);
-        List<Animal> animals = new ArrayList<>(
-                List.of(
-                        new Animal(new Vector2d(2, 1)),
-                        new Animal(new Vector2d(3, 4))
-                )
-        );
-
-        Simulation simulation = new Simulation(conf);
-        PresenterApp simulationApp = new PresenterApp();
-        Platform.runLater(() -> {
-            try {
-                simulationApp.createStage(map);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        });
-        Thread simulationThread = new Thread(() -> {
-            try {
-                simulation.run();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        });
-        simulationThread.setDaemon(true);
-        simulationThread.start();
     }
 }
