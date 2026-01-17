@@ -4,10 +4,7 @@ import agh.ics.oop.model.world.element.Animal;
 import agh.ics.oop.model.world.element.Grass;
 import agh.ics.oop.model.world.element.WorldDirections;
 import agh.ics.oop.model.world.map.WorldMap;
-import agh.ics.oop.util.JungleGrassPositionsGenerator;
-import agh.ics.oop.util.SimulationConfig;
-import agh.ics.oop.util.SteppeGrassPositionsGenerator;
-import agh.ics.oop.util.Vector2d;
+import agh.ics.oop.util.*;
 
 import java.util.Iterator;
 import java.util.ArrayList;
@@ -23,16 +20,12 @@ public class Simulation implements Runnable {
     private final List<Grass> grasses = new ArrayList<>();
     private final WorldMap map;
     private final SimulationConfig config;
-
+    private final AnimalRandomizer randomizer;
     private List<Animal> animalsToRemove = new ArrayList<>();
 
     public Simulation(SimulationConfig config) {
-        this.animals = new ArrayList<>(
-                List.of(
-                        new Animal(new Vector2d(4, 3), WorldDirections.NORTH, new ArrayList<>(List.of(0, 0, 0, 0, 0, 0, 0, 1)), config.animal().energyAtStart()),
-                        new Animal(new Vector2d(1, 9), WorldDirections.SOUTH, new ArrayList<>(List.of(0, 0, 0, 0, 0, 0, 0, 0)), config.animal().energyAtStart())
-                ));
-
+        this.randomizer = new AnimalRandomizer();
+        this.animals = randomizer.randomizer(config);
         this.map = new WorldMap(config);
         this.config = config;
 //      trawa startowa:

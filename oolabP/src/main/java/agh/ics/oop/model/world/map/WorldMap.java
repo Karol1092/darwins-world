@@ -19,15 +19,12 @@ public class WorldMap{
     private final Vector2d lowerLeft = new Vector2d(0,0);
     private final Vector2d upperRight;
     protected final List<Observer> observers = new ArrayList<>();
-    private final int noOfGrass;
     private Iterator<Vector2d> jungleIterator;
     private Iterator<Vector2d> steppeIterator;
     private final Random random = new Random();
     private final int[] jungleToSteppeRatio = {0,0,0,0,1};
     public WorldMap(SimulationConfig config) {
         this.upperRight = new Vector2d((config.map().width() - 1), (config.map().height() - 1));
-        this.noOfGrass = config.map().numberOfGrass();
-
         int height = config.map().height();
         int width = config.map().width();
         int jungleHeight = Math.max(1, (int)Math.round(height * 0.2));
