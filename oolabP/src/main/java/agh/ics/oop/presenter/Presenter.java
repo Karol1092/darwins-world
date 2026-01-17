@@ -157,6 +157,7 @@ public class Presenter implements Observer {
 
         GraphicsContext gc = canvas.getGraphicsContext2D();
         clearGrid();
+        drawJungle(gc,width,height);
         drawGrid(gc,lower,upper);
         drawAxis(gc,lower,upper);
         drawWorldElements(gc,worldMap,lower,upper);
@@ -168,7 +169,7 @@ public class Presenter implements Observer {
         gc.fillRect(0,0, canvas.getWidth(), canvas.getHeight());
     }
     private void drawGrid(GraphicsContext gc,Vector2d lower,Vector2d upper){
-        gc.setStroke(Color.DARKGREEN);
+        gc.setStroke(Color.BLACK);
         int cols = upper.getY()-lower.getY()+2;
         int rows = upper.getX()-lower.getX()+2;
 
@@ -179,6 +180,13 @@ public class Presenter implements Observer {
         for(int col=0;col<cols+1;col++){
             gc.strokeLine(0,col*CELL_SIZE,rows*CELL_SIZE,col*CELL_SIZE);
         }
+    }
+    private void drawJungle(GraphicsContext gc, int width, int height) {
+        int jungleHeight = Math.max(1, (int)Math.round(height * 0.2));
+
+        int minY = (height - jungleHeight) / 2;
+        gc.setFill(Color.DARKGREEN);
+        gc.fillRect(CELL_SIZE, (minY+1) * CELL_SIZE, (width + 1) * CELL_SIZE, jungleHeight* CELL_SIZE);
     }
 
     private void drawAxis(GraphicsContext gc,Vector2d lower,Vector2d upper){

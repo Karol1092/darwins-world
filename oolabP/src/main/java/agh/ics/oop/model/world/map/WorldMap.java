@@ -6,11 +6,12 @@ import agh.ics.oop.model.world.element.Grass;
 import agh.ics.oop.model.world.element.WorldDirections;
 import agh.ics.oop.model.world.element.WorldElement;
 import agh.ics.oop.presenter.Observer;
+import agh.ics.oop.util.JungleGrassPositionsGenerator;
+import agh.ics.oop.util.SimulationConfig;
+import agh.ics.oop.util.SteppeGrassPositionsGenerator;
 import agh.ics.oop.util.Vector2d;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 public class WorldMap{
     private final HashMap<Vector2d,List<Animal>> animals = new HashMap<>();
@@ -18,11 +19,25 @@ public class WorldMap{
     private final Vector2d lowerLeft = new Vector2d(0,0);
     private final Vector2d upperRight;
     protected final List<Observer> observers = new ArrayList<>();
+    private Iterator<Vector2d> jungleIterator;
+    private Iterator<Vector2d> steppeIterator;
+    private final Random random = new Random();
+    private final int[] jungleToSteppeRatio = {0,0,0,0,1};
+    public WorldMap(SimulationConfig config) {
+        this.upperRight = new Vector2d((config.map().width() - 1), (config.map().height() - 1));
+        int height = config.map().height();
+        int width = config.map().width();
+        int jungleHeight = Math.max(1, (int)Math.round(height * 0.2));
+        int minHeight = (height - jungleHeight) / 2;
+        int maxHeight = minHeight + jungleHeight - 1;
+        int jungleSize = (maxHeight-minHeight+1)*width;
+        int mapSize = width*height;
 
-    public WorldMap(int width, int height) {
-        this.upperRight = new Vector2d(width-1, height-1);
+        this.jungleIterator = new JungleGrassPositionsGenerator(width,
+                minHeight, maxHeight, jungleSize).iterator();
+        this.steppeIterator = new SteppeGrassPositionsGenerator(width,
+                minHeight, maxHeight, height, mapSize - jungleSize).iterator();
     }
-
     public boolean isOccupied(Vector2d position){
         List<Animal> animalsAtPosition = animals.get(position);
         return (animalsAtPosition != null && !animalsAtPosition.isEmpty())
@@ -32,7 +47,21 @@ public class WorldMap{
     public Grass getGrass(Vector2d position) {
         return grasses.getOrDefault(position, null);
     }
-
+    public void grassPlacement(int count) {
+        int place =0;
+        for (int i = 0; i < count; i++) {
+            place = random.nextInt(jungleToSteppeRatio.length);
+            if (jungleToSteppeRatio[place]==0){
+                if (jungleIterator.hasNext()){
+                    place(new Grass(jungleIterator.next()));
+                }else if (steppeIterator.hasNext()) {
+                    place(new Grass(steppeIterator.next()));
+                }
+            }else if (steppeIterator.hasNext()){
+                place(new Grass(steppeIterator.next()));
+            }
+        }
+    }
     public void removeGrass(Grass grass) {
         grasses.remove(grass.getPosition(), grass);
     }

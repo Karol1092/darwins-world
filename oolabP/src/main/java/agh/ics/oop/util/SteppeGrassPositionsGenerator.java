@@ -36,7 +36,6 @@ public class SteppeGrassPositionsGenerator implements Iterable<Vector2d> {
                     if (i<jungleLowerIndex || i > jungleUpperIndex) {
                         for (int j = 0; j < width; j++) {
                             indexes.add(new Vector2d(j, i));
-                            IO.println(new Vector2d(j, i));
                         }
                     }
                 }

@@ -4,10 +4,7 @@ import agh.ics.oop.model.world.element.Animal;
 import agh.ics.oop.model.world.element.Grass;
 import agh.ics.oop.model.world.element.WorldDirections;
 import agh.ics.oop.model.world.map.WorldMap;
-import agh.ics.oop.util.JungleGrassPositionsGenerator;
-import agh.ics.oop.util.SimulationConfig;
-import agh.ics.oop.util.SteppeGrassPositionsGenerator;
-import agh.ics.oop.util.Vector2d;
+import agh.ics.oop.util.*;
 
 import java.util.Iterator;
 import java.util.ArrayList;
@@ -22,38 +19,17 @@ public class Simulation implements Runnable {
     private final List<Animal> animals;
     private final List<Grass> grasses = new ArrayList<>();
     private final WorldMap map;
-    private Iterator<Vector2d> jungleIterator;
-    private Iterator<Vector2d> steppeIterator;
-    private final int noOfGrass;
-    private final int[] jungleToSteppeRatio = {0,0,0,0,1};
-    private final Random random = new Random();
+    private final SimulationConfig config;
+    private final AnimalRandomizer randomizer;
     private List<Animal> animalsToRemove = new ArrayList<>();
 
     public Simulation(SimulationConfig config) {
-        this.animals = new ArrayList<>(
-                List.of(
-                        new Animal(new Vector2d(4, 3), WorldDirections.NORTH, new ArrayList<>(List.of(0, 0, 0, 0, 0, 0, 0, 1)), config.animal().energyAtStart()),
-                        new Animal(new Vector2d(1, 9), WorldDirections.SOUTH, new ArrayList<>(List.of(0, 0, 0, 0, 0, 0, 0, 0)), config.animal().energyAtStart())
-                ));
-
-        this.map = new WorldMap(config.map().width(), config.map().height());
-        this.noOfGrass = config.map().numberOfGrassSpawn();
-//      wymiary mapy:
-        int height = map.getUpperRight().getY()+1;
-        int width = map.getUpperRight().getX()+1;
-        int mapSize = height * width;
-//      wymiary jungli:
-        int jungleHeight = Math.max(1, (int)Math.round(height * 0.2));
-        int minHeight = (height - jungleHeight) / 2;
-        int maxHeight = minHeight + jungleHeight - 1;
-        int jungleSize = (maxHeight-minHeight+1)*width;
-//      generatory trawy:
-        this.jungleIterator = new JungleGrassPositionsGenerator(width,
-                minHeight, maxHeight,jungleSize).iterator();
-        this.steppeIterator  = new SteppeGrassPositionsGenerator(width,
-                minHeight,maxHeight,height,mapSize-jungleSize).iterator();
+        this.randomizer = new AnimalRandomizer();
+        this.animals = randomizer.randomizer(config);
+        this.map = new WorldMap(config);
+        this.config = config;
 //      trawa startowa:
-        grassPlacement();
+        map.grassPlacement(config.map().numberOfGrass());
 //      zwierzęta startowe:
         for (Animal animal : animals) {
             map.place(animal);
@@ -68,34 +44,18 @@ public class Simulation implements Runnable {
         for (int i =0; i<8; i++) {
             days++;
             try {
-                daycycle();
+                dayCycle();
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
         }
     }
-    public void daycycle() throws Exception {
+    public void dayCycle() throws Exception {
         removeDeadAnimals();
         moveAliveAnimals();
         animalsGrassEating();
-        grassPlacement();
+        map.grassPlacement(config.map().numberOfGrassSpawn());
         }
-
-    private void grassPlacement() {
-        int place =0;
-        for (int i = 0; i < noOfGrass; i++) {
-            place = random.nextInt(jungleToSteppeRatio.length);
-            if (jungleToSteppeRatio[place]==0){
-                if (jungleIterator.hasNext()){
-                    map.place(new Grass(jungleIterator.next()));
-                }else if (steppeIterator.hasNext()) {
-                    map.place(new Grass(steppeIterator.next()));
-                }
-            }else if (steppeIterator.hasNext()){
-                map.place(new Grass(steppeIterator.next()));
-            }
-        }
-    }
 
     private void removeDeadAnimals() {
         for(Animal animalToRemove : animalsToRemove){
