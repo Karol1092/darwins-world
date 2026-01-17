@@ -36,7 +36,7 @@ public class Simulation implements Runnable {
                         new Animal(new Vector2d(1, 9), WorldDirections.SOUTH, new ArrayList<>(List.of(0, 0, 0, 0, 0, 0, 0, 0)), config.animal().energyAtStart())
                 ));
 
-        this.map = new WorldMap(config.map().width(), config.map().height());
+        this.map = new WorldMap(config);
         this.noOfGrass = config.map().numberOfGrassSpawn();
 //      wymiary mapy:
         int height = map.getUpperRight().getY()+1;

@@ -6,6 +6,7 @@ import agh.ics.oop.model.world.element.Grass;
 import agh.ics.oop.model.world.element.WorldDirections;
 import agh.ics.oop.model.world.element.WorldElement;
 import agh.ics.oop.presenter.Observer;
+import agh.ics.oop.util.SimulationConfig;
 import agh.ics.oop.util.Vector2d;
 
 import java.util.ArrayList;
@@ -19,8 +20,8 @@ public class WorldMap{
     private final Vector2d upperRight;
     protected final List<Observer> observers = new ArrayList<>();
 
-    public WorldMap(int width, int height) {
-        this.upperRight = new Vector2d(width-1, height-1);
+    public WorldMap(SimulationConfig config) {
+        this.upperRight = new Vector2d((config.map().width()-1), (config.map().height()-1));
     }
 
     public boolean isOccupied(Vector2d position){
