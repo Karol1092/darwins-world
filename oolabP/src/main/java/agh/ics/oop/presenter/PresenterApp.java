@@ -27,7 +27,7 @@ public class PresenterApp extends Application {
     public void createStage(WorldMap map) throws Exception{
         FXMLLoader loader = new FXMLLoader(); // zainicjowanie wczytywania FXML
         // wczytanie zasobu z katalogu resources (uniwersalny sposób)
-        loader.setLocation(getClass().getClassLoader().getResource("new_simulation.fxml"));
+        loader.setLocation(getClass().getClassLoader().getResource("newSimulation.fxml"));
 
         // Wczytanie FXML, konwersja FXML -> obiekty w Javie
         BorderPane viewRoot = loader.load();

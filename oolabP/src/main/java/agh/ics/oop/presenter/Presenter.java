@@ -2,8 +2,6 @@ package agh.ics.oop.presenter;
 
 
 
-import agh.ics.oop.model.world.element.Animal;
-import agh.ics.oop.model.world.element.WorldDirections;
 import agh.ics.oop.model.world.element.WorldElement;
 import agh.ics.oop.model.world.map.WorldMap;
 import agh.ics.oop.simulations.Simulation;
@@ -16,6 +14,7 @@ import javafx.geometry.VPos;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
@@ -25,14 +24,13 @@ import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 public class Presenter implements Observer {
 
 
     @FXML private Label moveInfoLabel;
     @FXML private Canvas canvas;
+    @FXML private Button pauseButton;
 
     @FXML private TextField mapHeightTextField;
     @FXML private TextField mapWidthTextField;
@@ -52,6 +50,7 @@ public class Presenter implements Observer {
     @FXML private TextField geneLengthTextField;
 
     private final static int CELL_SIZE = 40;
+    private Simulation simulation;
 
     @Override
     public void mapChanged(WorldMap newWorldMap, String Message) {
@@ -59,6 +58,10 @@ public class Presenter implements Observer {
             drawMap(newWorldMap);
             moveInfoLabel.setText(moveInfoLabel.getText()+"\n"+ Message);
         });
+    }
+
+    public void setSimulation(Simulation simulation) {
+        this.simulation = simulation;
     }
 
     public void onSimulationStartClicked() {
@@ -80,10 +83,12 @@ public class Presenter implements Observer {
 
     private void startSimulationWindow(Simulation simulation) throws IOException {
         FXMLLoader loader = new FXMLLoader();
-        loader.setLocation(getClass().getClassLoader().getResource("new_simulation.fxml"));
+        loader.setLocation(getClass().getClassLoader().getResource("newSimulation.fxml"));
         BorderPane viewRoot = loader.load();
 
         Presenter presenter = loader.getController();
+
+        presenter.setSimulation(simulation);
 
         WorldMap map = simulation.getWorldMap();
         map.addObserver(presenter);
@@ -94,6 +99,15 @@ public class Presenter implements Observer {
 
         presenter.drawMap(map);
         stage.show();
+    }
+
+    public void onPauseButtonClicked() {
+        if (simulation != null) {
+            simulation.togglePause();
+            Platform.runLater(() -> {
+                pauseButton.setText(simulation.isPaused() ? "Resume" : "Pause");
+            });
+        }
     }
 
     private int getIntFromTextField(TextField textField) {
