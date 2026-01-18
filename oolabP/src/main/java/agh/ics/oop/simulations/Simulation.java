@@ -118,9 +118,10 @@ public class Simulation implements Runnable {
                 map.removeAnimal(animal);
                 animalsToRemove.add(animal);
             }
-
-            map.move(animal, animal.getGene().get(((days - 1) % animal.getGene().size())));
-            animal.setLifeEnergy(animal.getLifeEnergy() - config.energy().dailyLoss());
+            else {
+                map.move(animal, animal.getGene().get(((days - 1) % animal.getGene().size())));
+                animal.setLifeEnergy(animal.getLifeEnergy() - config.energy().dailyLoss());
+            }
         }
     }
 
