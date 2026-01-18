@@ -4,7 +4,8 @@ public record SimulationConfig(
         Map map,
         Energy energy,
         Animal animal,
-        Genotype genotype
+        Genotype genotype,
+        Fire fire
 ) {
     public record Map(
         int height,
@@ -29,5 +30,10 @@ public record SimulationConfig(
         int minimumMutations,
         int maximumMutations,
         int length
+    ) {}
+    public record Fire(
+            double probability,
+            int lasting,
+            int damage
     ) {}
 }

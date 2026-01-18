@@ -80,6 +80,7 @@ public class Simulation implements Runnable {
             }
         }
     }
+
     public void dayCycle() throws Exception {
         removeDeadAnimals();
 

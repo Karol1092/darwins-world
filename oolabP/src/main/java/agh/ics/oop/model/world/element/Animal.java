@@ -11,7 +11,8 @@ public class Animal implements WorldElement {
     private WorldDirections facingDirection;
     private final List<Integer> gene;
     private int lifeEnergy;
-
+    private boolean isBurning = false;
+    private int burning;
     public Animal(Vector2d position) {
         this.position = position;
         this.facingDirection = WorldDirections.NORTH;
@@ -28,6 +29,25 @@ public class Animal implements WorldElement {
         this.gene = gene;
         this.position = position;
         this.facingDirection = WorldDirections.NORTH;
+    }
+    @Override
+    public boolean getIsBurning() {
+        return isBurning;
+    }
+
+    @Override
+    public void setIsBurning(boolean burning) {
+        this.isBurning = burning;
+    }
+
+    @Override
+    public int getBurning() {
+        return this.burning;
+    }
+
+    @Override
+    public void setBurning(int burning) {
+        this.burning = burning;
     }
 
     public void setLifeEnergy(int lifeEnergy) {

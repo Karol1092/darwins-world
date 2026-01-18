@@ -16,6 +16,8 @@ import java.util.*;
 public class WorldMap{
     private final HashMap<Vector2d,List<Animal>> animals = new HashMap<>();
     private final HashMap<Vector2d, Grass> grasses = new HashMap<>();
+    private final HashMap<Vector2d,List<WorldElement>> elementsOnFire = new HashMap<>();
+    private final HashSet<Vector2d> fires = new HashSet<>();
     private final Vector2d lowerLeft = new Vector2d(0,0);
     private final Vector2d upperRight;
     protected final List<Observer> observers = new ArrayList<>();
@@ -23,6 +25,8 @@ public class WorldMap{
     private final SteppeGrassPositionsGenerator steppeGenerator;
     private final int  jungleMinHeight;
     private final int jungleMaxHeight;
+    private final Vector2d[] neighbours = {new Vector2d(0,1),new Vector2d(0,0),new Vector2d(1,1), new Vector2d(1,0),
+            new Vector2d(0,-1),new Vector2d(-1,0),new Vector2d(-1,1),new Vector2d(-1,-1)};
     private final Random random = new Random();
     private final int[] jungleToSteppeRatio = {0,0,0,0,1};
     private final static WorldDirections[] worldDirectionsPool =     {
@@ -47,7 +51,6 @@ public class WorldMap{
         int jungleSize = (jungleMaxHeight-jungleMinHeight+1)*width;
         int mapSize = width*height;
 
-
         this.jungleGenerator = new JungleGrassPositionsGenerator(width,
                 jungleMinHeight, jungleMaxHeight, jungleSize);
         this.steppeGenerator = new SteppeGrassPositionsGenerator(width,
@@ -55,18 +58,16 @@ public class WorldMap{
 
 
     }
+
     public boolean isOccupied(Vector2d position){
         List<Animal> animalsAtPosition = animals.get(position);
         return (animalsAtPosition != null && !animalsAtPosition.isEmpty())
                 || grasses.containsKey(position);
     }
+
     private boolean grassLocation(Grass grass){
         Vector2d position = grass.getPosition();
-        if (position.getY() >= jungleMinHeight && position.getY() <= jungleMaxHeight){
-            return true;
-        }else{
-           return  false;
-        }
+        return position.getY() >= jungleMinHeight && position.getY() <= jungleMaxHeight;
     }
 
     public Grass getGrassAtPosition(Vector2d position) {
@@ -103,7 +104,9 @@ public class WorldMap{
         }
         grasses.remove(grass.getPosition(), grass);
     }
+
     public void animalsGrassEating() {
+
         List<Animal> sortedAnimals = new ArrayList<>();
         for (List<Animal> animalsAtPosition : animals.values()) {
             sortedAnimals.addAll(animalsAtPosition);
@@ -117,6 +120,7 @@ public class WorldMap{
             }
         }
     }
+
     public List<WorldElement> getAllElements(){
         List<WorldElement> elements = new ArrayList<>();
         for (int i = 0; i<upperRight.getX()+1; i++){
@@ -166,7 +170,7 @@ public class WorldMap{
         List<Animal> children = new ArrayList<>();
         while(ready.size() >= 2) {
             ready.sort(Comparator.comparingInt(Animal::getLifeEnergy));
-            Animal mom = ready.get(ready.size() - 1);
+            Animal mom = ready.getLast();
             Animal dad = ready.get(ready.size() - 2);
 
             if (mom.getLifeEnergy() >= config.energy().minimumToReproduce() &&
@@ -259,6 +263,51 @@ public class WorldMap{
 
         animal.setPosition(new Vector2d(x,y));
         animals.computeIfAbsent(animal.getPosition(), k -> new ArrayList<>()).add(animal);
+    }
+
+    public void fireDamage(){
+        List<Vector2d> noFirePositions = new ArrayList<>();
+        for (Map.Entry<Vector2d,List<WorldElement>> entry: elementsOnFire.entrySet()){
+            Vector2d position = entry.getKey();
+            List<WorldElement> elementsOnFireAtPosition = entry.getValue();
+            List<WorldElement> elementsNoLongerOnFire = new ArrayList<>();
+                for (WorldElement worldElement : elementsOnFireAtPosition){
+                    worldElement.setBurning(worldElement.getBurning()-1);
+                    if (worldElement.getBurning() < 0) {
+                        if (worldElement instanceof Grass) grasses.remove(position);
+                        elementsNoLongerOnFire.add(worldElement);
+                        worldElement.setIsBurning(false);
+                    }else {
+                        if (worldElement instanceof Animal) {
+                            ((Animal) worldElement).setLifeEnergy(((Animal) worldElement).getLifeEnergy() - config.fire().damage());
+                        }
+                    }
+                }
+
+                elementsOnFireAtPosition.removeAll(elementsNoLongerOnFire);
+                if (elementsOnFireAtPosition.isEmpty()){
+                    noFirePositions.add(position);
+                }
+        }
+        for (Vector2d position : noFirePositions){
+            elementsOnFire.remove(position);
+        }
+    }
+
+    private void fireSpreading() {
+        Set<Vector2d> newFire = new HashSet<>();
+        for (Vector2d position: fires){
+            for (Vector2d v : neighbours){
+                Vector2d pos =  position.add(v);
+                if (grasses.containsKey(pos) && !grasses.get(pos).getIsBurning()){
+                    newFire.add(pos);
+                    Grass grass = grasses.get(pos);
+                    grass.setIsBurning(true);
+                    grass.setBurning(config.fire().damage());
+                }
+            }
+        }
+        fires.addAll(newFire);
     }
 
     public Vector2d getLowerLeft() {
