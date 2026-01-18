@@ -112,10 +112,16 @@ public class WorldMap{
     }
     public void animalsGrassEating() {
         List<Animal> sortedAnimals = new ArrayList<>();
+
         for (List<Animal> animalsAtPosition : animals.values()) {
             sortedAnimals.addAll(animalsAtPosition);
         }
-        sortedAnimals.sort(Comparator.comparingInt(Animal::getLifeEnergy).reversed());
+
+        sortedAnimals.sort(Comparator.comparingInt(Animal::getLifeEnergy)
+                .thenComparingInt(Animal::getAge)
+                .thenComparingInt(Animal::getNumberOfChildren)
+                .thenComparing(Animal::getUniqueId));
+
         for (Animal animal : sortedAnimals) {
             Grass grass = getGrassAtPosition(animal.getPosition());
             if (grass != null) {
@@ -172,8 +178,12 @@ public class WorldMap{
     private List<Animal> reproduceAt(Vector2d position, List<Animal> ready){
         List<Animal> children = new ArrayList<>();
         while(ready.size() >= 2) {
-            ready.sort(Comparator.comparingInt(Animal::getLifeEnergy));
-            Animal mom = ready.get(ready.size() - 1);
+            ready.sort(Comparator.comparingInt(Animal::getLifeEnergy)
+                    .thenComparingInt(Animal::getAge)
+                    .thenComparingInt(Animal::getNumberOfChildren)
+                    .thenComparing(Animal::getUniqueId));
+
+            Animal mom = ready.getLast();
             Animal dad = ready.get(ready.size() - 2);
 
             if (mom.getLifeEnergy() >= config.energy().minimumToReproduce() &&

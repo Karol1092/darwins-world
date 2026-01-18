@@ -4,6 +4,7 @@ import agh.ics.oop.util.Vector2d;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public class Animal implements WorldElement {
 
@@ -13,6 +14,7 @@ public class Animal implements WorldElement {
     private int lifeEnergy;
     private int age;
     private int numberOfChildren;
+    private final UUID id = UUID.randomUUID();
 
     public Animal(Vector2d position) {
         this.position = position;
@@ -22,6 +24,7 @@ public class Animal implements WorldElement {
         this.age = 0;
         this.numberOfChildren = 0;
     }
+
     public Animal(Vector2d position, WorldDirections facingDirection, List<Integer> gene, int lifeEnergy) {
         this.gene = gene;
         this.position = position;
@@ -30,6 +33,7 @@ public class Animal implements WorldElement {
         this.age = 0;
         this.numberOfChildren = 0;
     }
+
     public Animal(Vector2d position, List<Integer> gene) {
         this.gene = gene;
         this.position = position;
@@ -48,6 +52,10 @@ public class Animal implements WorldElement {
 
     public int getAge() {
         return age;
+    }
+
+    public UUID getUniqueId() {
+        return id;
     }
 
     public int getNumberOfChildren() {
