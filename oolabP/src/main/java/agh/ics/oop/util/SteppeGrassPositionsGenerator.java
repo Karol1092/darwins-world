@@ -1,45 +1,34 @@
 package agh.ics.oop.util;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 public class SteppeGrassPositionsGenerator implements Iterable<Vector2d> {
 
-    private final int width;
-    private final int height;
-    private final int count;
-    private final int jungleUpperIndex;
-    private final int jungleLowerIndex;
 
+    private final int count;
+    private final List<Vector2d> indexes = new ArrayList<>();
 
     public SteppeGrassPositionsGenerator(int width,int jungleLowerIndex,int jungleUpperIndex, int height, int count) {
 
-        this.width = width;
-        this.height = height;
         this.count = count;
-        this.jungleLowerIndex = jungleLowerIndex;
-        this.jungleUpperIndex = jungleUpperIndex;
-    }
 
+        for (int i = 0; i < height; i++) {
+            if (i<jungleLowerIndex || i > jungleUpperIndex) {
+                for (int j = 0; j < width; j++) {
+                    indexes.add(new Vector2d(j, i));
+                }
+            }
+        }
+    }
+    public void addIndex(Vector2d index) {
+        this.indexes.add(index);
+    }
     @Override
     public Iterator<Vector2d> iterator() {
 
         return new Iterator<>() {
             private final Random rand = new Random();
-            private final List<Vector2d> indexes = new ArrayList<>();
             private int returned = 0;
-
-            {
-                for (int i = 0; i < height; i++) {
-                    if (i<jungleLowerIndex || i > jungleUpperIndex) {
-                        for (int j = 0; j < width; j++) {
-                            indexes.add(new Vector2d(j, i));
-                        }
-                    }
-                }
-            }
 
             @Override
             public Vector2d next() {

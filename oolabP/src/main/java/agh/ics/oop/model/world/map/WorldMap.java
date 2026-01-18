@@ -19,8 +19,10 @@ public class WorldMap{
     private final Vector2d lowerLeft = new Vector2d(0,0);
     private final Vector2d upperRight;
     protected final List<Observer> observers = new ArrayList<>();
-    private Iterator<Vector2d> jungleIterator;
-    private Iterator<Vector2d> steppeIterator;
+    private final JungleGrassPositionsGenerator jungleGenerator;
+    private final SteppeGrassPositionsGenerator steppeGenerator;
+    private final int  jungleMinHeight;
+    private final int jungleMaxHeight;
     private final Random random = new Random();
     private final int[] jungleToSteppeRatio = {0,0,0,0,1};
     private final static WorldDirections[] WDPool =     {
@@ -32,23 +34,24 @@ public class WorldMap{
             WorldDirections.SOUTH_WEST,
             WorldDirections.WEST,
             WorldDirections.NORTH_WEST};
-    private SimulationConfig config;
+    private final  SimulationConfig config;
+
     public WorldMap(SimulationConfig config) {
         this.upperRight = new Vector2d((config.map().width() - 1), (config.map().height() - 1));
         this.config = config;
         int height = config.map().height();
         int width = config.map().width();
         int jungleHeight = Math.max(1, (int)Math.round(height * 0.2));
-        int minHeight = (height - jungleHeight) / 2;
-        int maxHeight = minHeight + jungleHeight - 1;
-        int jungleSize = (maxHeight-minHeight+1)*width;
+        this.jungleMinHeight = (height - jungleHeight) / 2;
+        this. jungleMaxHeight = jungleMinHeight + jungleHeight - 1;
+        int jungleSize = (jungleMaxHeight-jungleMinHeight+1)*width;
         int mapSize = width*height;
 
 
-        this.jungleIterator = new JungleGrassPositionsGenerator(width,
-                minHeight, maxHeight, jungleSize).iterator();
-        this.steppeIterator = new SteppeGrassPositionsGenerator(width,
-                minHeight, maxHeight, height, mapSize - jungleSize).iterator();
+        this.jungleGenerator = new JungleGrassPositionsGenerator(width,
+                jungleMinHeight, jungleMaxHeight, jungleSize);
+        this.steppeGenerator = new SteppeGrassPositionsGenerator(width,
+                jungleMinHeight, jungleMaxHeight, height, mapSize - jungleSize);
 
 
     }
@@ -57,12 +60,21 @@ public class WorldMap{
         return (animalsAtPosition != null && !animalsAtPosition.isEmpty())
                 || grasses.containsKey(position);
     }
-
+    private boolean grassLocation(Grass grass){
+        Vector2d position = grass.getPosition();
+        if (position.getY() >= jungleMinHeight && position.getY() <= jungleMaxHeight){
+            return true;
+        }else{
+           return  false;
+        }
+    }
     public Grass getGrass(Vector2d position) {
         return grasses.getOrDefault(position, null);
     }
     public void grassPlacement(int count) {
         int place =0;
+        Iterator<Vector2d> jungleIterator = jungleGenerator.iterator();
+        Iterator<Vector2d> steppeIterator = steppeGenerator.iterator();
         for (int i = 0; i < count; i++) {
             place = random.nextInt(jungleToSteppeRatio.length);
             if (jungleToSteppeRatio[place]==0){
@@ -77,9 +89,27 @@ public class WorldMap{
         }
     }
     public void removeGrass(Grass grass) {
+        if (grassLocation(grass)) {
+            jungleGenerator.addIndex(grass.getPosition());
+        }else{
+            steppeGenerator.addIndex(grass.getPosition());
+        }
         grasses.remove(grass.getPosition(), grass);
     }
-
+    public void animalsGrassEating() {
+        List<Animal> sortedAnimals = new ArrayList<>();
+        for (List<Animal> animalsAtPosition : animals.values()) {
+            sortedAnimals.addAll(animalsAtPosition);
+        }
+        sortedAnimals.sort(Comparator.comparingInt(Animal::getLifeEnergy).reversed());
+        for (Animal animal : sortedAnimals) {
+            Grass grass = getGrass(animal.getPosition());
+            if (grass != null) {
+                removeGrass(grass);
+                animal.setLifeEnergy(animal.getLifeEnergy() + config.energy().grassProfit());
+            }
+        }
+    }
     public List<WorldElement> getAllElements(){
         List<WorldElement> elements = new ArrayList<>();
         for (int i = 0; i<upperRight.getX()+1; i++){
@@ -115,6 +145,7 @@ public class WorldMap{
             }
         }
     }
+//    REPRODUKCJA NA RAZIE TYLKO UWZGLĘNIA ILOŚĆ ENERGII
     private void reproduceAt(Vector2d position, List<Animal> ready){
         boolean produced = true;
         while(produced) {
@@ -202,7 +233,6 @@ public class WorldMap{
 
         animal.setPosition(new Vector2d(x,y));
         animals.computeIfAbsent(animal.getPosition(), k -> new ArrayList<>()).add(animal);
-        mapChanged("Animal moved at : " + animal.getPosition() + "\n" + "Animal health: " + animal.getLifeEnergy());
     }
 
     public Vector2d getLowerLeft() {

@@ -2,25 +2,26 @@ package agh.ics.oop.util;
 
 import agh.ics.oop.util.Vector2d;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 public class JungleGrassPositionsGenerator implements Iterable<Vector2d> {
 
-    private final int width;
-    private final int minHeight;
-    private final int maxHeight;
+
     private final int count;
-
-
+    private final List<Vector2d> indexes = new ArrayList<>();
     public JungleGrassPositionsGenerator(int width,int minHeight,int maxHeight,int count) {
-
-        this.width = width;
-        this.minHeight = minHeight;
-        this.maxHeight = maxHeight;
         this.count = count;
+
+        {
+            for (int i = 0; i < width; i++) {
+                for (int j = minHeight; j < (maxHeight+1); j++) {
+                    indexes.add(new Vector2d(i, j));
+                }
+            }
+        }
+    }
+    public void addIndex(Vector2d index) {
+        this.indexes.add(index);
     }
 
     @Override
@@ -28,17 +29,7 @@ public class JungleGrassPositionsGenerator implements Iterable<Vector2d> {
 
         return new Iterator<>() {
             private final Random rand = new Random();
-            private final List<Vector2d> indexes = new ArrayList<>();
             private int returned = 0;
-
-            {
-                for (int i = 0; i < width; i++) {
-                    for (int j = minHeight; j < (maxHeight+1); j++) {
-                        indexes.add(new Vector2d(i, j));
-                    }
-                }
-            }
-
             @Override
             public Vector2d next() {
                 int newPosition = rand.nextInt(indexes.size());
@@ -52,10 +43,6 @@ public class JungleGrassPositionsGenerator implements Iterable<Vector2d> {
             public boolean hasNext() {
                 return returned < count && !indexes.isEmpty();
             }
-
-//            public void addIndex(Vector2d index) {
-//                indexes.add(index);
-//            }
         };
     }
 }
