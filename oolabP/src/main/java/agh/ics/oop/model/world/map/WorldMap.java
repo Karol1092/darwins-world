@@ -11,6 +11,7 @@ import agh.ics.oop.util.SimulationConfig;
 import agh.ics.oop.util.SteppeGrassPositionsGenerator;
 import agh.ics.oop.util.Vector2d;
 
+import java.sql.Array;
 import java.util.*;
 
 public class WorldMap{
@@ -23,7 +24,7 @@ public class WorldMap{
     private Iterator<Vector2d> steppeIterator;
     private final Random random = new Random();
     private final int[] jungleToSteppeRatio = {0,0,0,0,1};
-    private final static WorldDirections[] WDPool =     {
+    private final static WorldDirections[] worldDirectionsPool =     {
             WorldDirections.NORTH,
             WorldDirections.NORTH_EAST,
             WorldDirections.EAST,
@@ -33,6 +34,7 @@ public class WorldMap{
             WorldDirections.WEST,
             WorldDirections.NORTH_WEST};
     private SimulationConfig config;
+
     public WorldMap(SimulationConfig config) {
         this.upperRight = new Vector2d((config.map().width() - 1), (config.map().height() - 1));
         this.config = config;
@@ -49,9 +51,8 @@ public class WorldMap{
                 minHeight, maxHeight, jungleSize).iterator();
         this.steppeIterator = new SteppeGrassPositionsGenerator(width,
                 minHeight, maxHeight, height, mapSize - jungleSize).iterator();
-
-
     }
+
     public boolean isOccupied(Vector2d position){
         List<Animal> animalsAtPosition = animals.get(position);
         return (animalsAtPosition != null && !animalsAtPosition.isEmpty())
@@ -61,8 +62,9 @@ public class WorldMap{
     public Grass getGrass(Vector2d position) {
         return grasses.getOrDefault(position, null);
     }
+
     public void grassPlacement(int count) {
-        int place =0;
+        int place = 0;
         for (int i = 0; i < count; i++) {
             place = random.nextInt(jungleToSteppeRatio.length);
             if (jungleToSteppeRatio[place]==0){
@@ -76,6 +78,7 @@ public class WorldMap{
             }
         }
     }
+
     public void removeGrass(Grass grass) {
         grasses.remove(grass.getPosition(), grass);
     }
@@ -103,70 +106,89 @@ public class WorldMap{
             animals.computeIfAbsent(element.getPosition(), k  -> new ArrayList<>()).add((Animal) element);
         }
     }
-    public void animalsReproduction(){
+
+    public List<Animal> animalsReproduction(){
+        List<Animal> newborns = new ArrayList<>();
+
         for (Map.Entry<Vector2d,List<Animal>> entry : animals.entrySet()){
             Vector2d position = entry.getKey();
             List<Animal> animalsAtPosition = entry.getValue();
-            if(animalsAtPosition.size()>=2){
+            if(animalsAtPosition.size() >= 2){
                 List<Animal> ready = new ArrayList<>(animalsAtPosition.stream()
                         .filter(a -> a.getLifeEnergy() >= config.energy().minimumToReproduce())
                         .toList());
-                if (ready.size()>2) reproduceAt(position,ready);
+                if (ready.size() >= 2) {
+                    newborns.addAll(reproduceAt(position, ready));
+                };
             }
         }
+        for (Animal baby : newborns) {
+            place(baby);
+        }
+        return newborns;
     }
-    private void reproduceAt(Vector2d position, List<Animal> ready){
-        boolean produced = true;
-        while(produced) {
+
+    private List<Animal> reproduceAt(Vector2d position, List<Animal> ready){
+        List<Animal> children = new ArrayList<>();
+        while(ready.size() >= 2) {
             ready.sort(Comparator.comparingInt(Animal::getLifeEnergy));
-            Animal mom = ready.get(ready.size()-1);
-            Animal dad = ready.get(ready.size()-2);
+            Animal mom = ready.get(ready.size() - 1);
+            Animal dad = ready.get(ready.size() - 2);
 
             if (mom.getLifeEnergy() >= config.energy().minimumToReproduce() &&
             dad.getLifeEnergy() >= config.energy().minimumToReproduce()) {
 
                 int totalEnergy = dad.getLifeEnergy() +  mom.getLifeEnergy();
-                int genesFromMom = (int) Math.round(
-                        ((double) mom.getLifeEnergy() / totalEnergy)
-                                * config.genotype().length()
-                );
+                int genotypeLength = config.genotype().length();
+
+                int momGenesRatio = (int) Math.round(((double) mom.getLifeEnergy() / totalEnergy) * genotypeLength);
+                int dadGenesRatio = genotypeLength - momGenesRatio;
+
                 boolean side = random.nextBoolean();
                 List<Integer> result = new ArrayList<>();
-                if (side) {
-                    result.addAll(new ArrayList<>(mom.getGene().subList(0, genesFromMom)));
-                    result.addAll(new ArrayList<>(dad.getGene().subList(genesFromMom, config.genotype().length())));
-                } else {
-                    int fromDad = config.genotype().length() - genesFromMom;
-                    result.addAll(new ArrayList<>(dad.getGene().subList(0, fromDad)));
-                    result.addAll(new ArrayList<>(mom.getGene().subList(fromDad, config.genotype().length())));
-                }
-                mom.setLifeEnergy(mom.getLifeEnergy() - (int) Math.round((double) genesFromMom / config.genotype().length() * config.animal().offspringEnergyAtStart()));
 
-                dad.setLifeEnergy(dad.getLifeEnergy() - (int) Math.round((double) (config.genotype().length() - genesFromMom) / config.genotype().length() * config.animal().offspringEnergyAtStart()));
+                if (side) {
+                    result.addAll(new ArrayList<>(mom.getGene().subList(0, momGenesRatio)));
+                    result.addAll(new ArrayList<>(dad.getGene().subList(momGenesRatio, genotypeLength)));
+                } else {
+                    result.addAll(new ArrayList<>(dad.getGene().subList(0, dadGenesRatio)));
+                    result.addAll(new ArrayList<>(mom.getGene().subList(dadGenesRatio, genotypeLength)));
+                }
+
+                mom.setLifeEnergy(mom.getLifeEnergy() - config.energy().lossDueToReproduction());
+                dad.setLifeEnergy(dad.getLifeEnergy() - config.energy().lossDueToReproduction());
 
                 List<Integer> indices = new ArrayList<>();
                 for (int i = 0; i < result.size(); i++) {
                     indices.add(i);
                 }
+
                 Collections.shuffle(indices);
                 int mutationsCount = random.nextInt(
                         config.genotype().minimumMutations(),
                         config.genotype().maximumMutations() + 1
                 );
 
-                for (int i = 0; i < mutationsCount; i++) {
+                int actualMutations = Math.min(mutationsCount, result.size());
+
+                for (int i = 0; i < actualMutations; i++) {
                     int idx = indices.get(i);
                     result.set(idx, random.nextInt(8));
                 }
 
-                Animal child = new Animal(position,WDPool[random.nextInt(8)],result,config.animal().offspringEnergyAtStart());
-                place(child);
-            }else{
-                produced = false;
+                Animal child = new Animal(position, worldDirectionsPool[random.nextInt(8)], result, 2 * config.energy().lossDueToReproduction());
+                children.add(child);
+
+                ready.remove(mom);
+                ready.remove(dad);
+
+            } else {
+                break;
             }
         }
-
+        return children;
     }
+
     public void removeAnimal(Animal animal) {
         Vector2d position = animal.getPosition();
         List<Animal> animalsAtPosition = animals.get(position);
@@ -192,6 +214,7 @@ public class WorldMap{
         }
         return animal.getPosition().getY();
     }
+
     public void move(Animal animal,int rotation) throws Exception{
         removeAnimal(animal);
         animal.move(rotation);
@@ -202,21 +225,24 @@ public class WorldMap{
 
         animal.setPosition(new Vector2d(x,y));
         animals.computeIfAbsent(animal.getPosition(), k -> new ArrayList<>()).add(animal);
-        mapChanged("Animal moved at : " + animal.getPosition() + "\n" + "Animal health: " + animal.getLifeEnergy());
     }
 
     public Vector2d getLowerLeft() {
         return lowerLeft;
     }
+
     public Vector2d getUpperRight() {
         return  upperRight;
     }
+
     public void addObserver(Observer observer){
         observers.add(observer);
     }
+
     public void removeObserver(Observer observer){
         observers.remove(observer);
     }
+
     public void mapChanged(String message) {
         for (Observer observer : observers) {
             observer.mapChanged(this, message);

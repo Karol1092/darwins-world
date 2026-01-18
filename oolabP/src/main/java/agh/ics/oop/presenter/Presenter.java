@@ -46,7 +46,6 @@ public class Presenter implements Observer {
 
     @FXML private TextField animalNumberField;
     @FXML private TextField startEnergyTextField;
-    @FXML private TextField offspringEnergyTextField;
 
     @FXML private TextField minimumMutationsTextField;
     @FXML private TextField maximumMutationsTextField;
@@ -127,8 +126,7 @@ public class Presenter implements Observer {
 
         var animalConfig = new SimulationConfig.Animal(
                 getIntFromTextField(animalNumberField),
-                getIntFromTextField(startEnergyTextField),
-                getIntFromTextField(offspringEnergyTextField)
+                getIntFromTextField(startEnergyTextField)
         );
 
         var genotypeConfig = new SimulationConfig.Genotype(

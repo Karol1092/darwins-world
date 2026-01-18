@@ -58,10 +58,23 @@ public class Simulation implements Runnable {
     }
     public void dayCycle() throws Exception {
         removeDeadAnimals();
+
         moveAliveAnimals();
+
         animalsGrassEating();
-        map.animalsReproduction();
+
+        List<Animal> newborns = map.animalsReproduction();
+        animals.addAll(newborns);
+
         map.grassPlacement(config.map().numberOfGrassSpawn());
+
+        map.mapChanged("day: " + days + ", " + "number of animals: " + animals.size());
+
+        try{
+            Thread.sleep(1000);
+        }catch (InterruptedException e){
+            e.printStackTrace();
+        }
         }
 
     private void removeDeadAnimals() {
@@ -81,13 +94,7 @@ public class Simulation implements Runnable {
             }
 
             map.move(animal, animal.getGene().get(((days - 1) % animal.getGene().size())));
-            animal.setLifeEnergy(animal.getLifeEnergy() - 10);
-
-            try{
-                Thread.sleep(500);
-            }catch (InterruptedException e){
-                e.printStackTrace();
-            }
+            animal.setLifeEnergy(animal.getLifeEnergy() - config.energy().dailyLoss());
         }
     }
 
@@ -97,7 +104,7 @@ public class Simulation implements Runnable {
             if (grass != null) {
                 map.removeGrass(grass);
                 grasses.remove(grass);
-                animal.setLifeEnergy(animal.getLifeEnergy() + 30);
+                animal.setLifeEnergy(animal.getLifeEnergy() + config.energy().grassProfit());
             }
         }
     }

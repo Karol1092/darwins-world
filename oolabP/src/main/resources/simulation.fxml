@@ -40,7 +40,6 @@
                  <HBox alignment="CENTER"><Label fx:id="animalLabel" text="Animal properties"/></HBox>
                  <HBox alignment="CENTER"><Label fx:id="animalNumberLabel" text="Number of animals: "/><TextField fx:id="animalNumberField" promptText="2"/></HBox>
                  <HBox alignment="CENTER"><Label fx:id="startEnergyLabel" text="Animal start energy: "/><TextField fx:id="startEnergyTextField" promptText="70"/></HBox>
-                 <HBox alignment="CENTER"><Label fx:id="offspringEnergyLabel" text="Offspring start energy: "/><TextField fx:id="offspringEnergyTextField" promptText="50"/></HBox>
               </VBox>
 
               <VBox styleClass="box" alignment="CENTER">
