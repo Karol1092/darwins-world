@@ -6,10 +6,7 @@ import agh.ics.oop.model.world.element.WorldDirections;
 import agh.ics.oop.model.world.map.WorldMap;
 import agh.ics.oop.util.*;
 
-import java.util.Iterator;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 import static java.lang.Math.max;
 
@@ -41,7 +38,7 @@ public class Simulation implements Runnable {
     }
 
     public void run() {
-        for (int i =0; i<8; i++) {
+        for (int i =0; i<50; i++) {
             days++;
             try {
                 dayCycle();
@@ -54,6 +51,7 @@ public class Simulation implements Runnable {
         removeDeadAnimals();
         moveAliveAnimals();
         animalsGrassEating();
+        map.animalsReproduction();
         map.grassPlacement(config.map().numberOfGrassSpawn());
         }
 
@@ -94,5 +92,4 @@ public class Simulation implements Runnable {
             }
         }
     }
-
 }

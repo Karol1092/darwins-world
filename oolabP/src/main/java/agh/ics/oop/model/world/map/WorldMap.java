@@ -23,8 +23,19 @@ public class WorldMap{
     private Iterator<Vector2d> steppeIterator;
     private final Random random = new Random();
     private final int[] jungleToSteppeRatio = {0,0,0,0,1};
+    private final static WorldDirections[] WDPool =     {
+            WorldDirections.NORTH,
+            WorldDirections.NORTH_EAST,
+            WorldDirections.EAST,
+            WorldDirections.SOUTH_EAST,
+            WorldDirections.SOUTH,
+            WorldDirections.SOUTH_WEST,
+            WorldDirections.WEST,
+            WorldDirections.NORTH_WEST};
+    private SimulationConfig config;
     public WorldMap(SimulationConfig config) {
         this.upperRight = new Vector2d((config.map().width() - 1), (config.map().height() - 1));
+        this.config = config;
         int height = config.map().height();
         int width = config.map().width();
         int jungleHeight = Math.max(1, (int)Math.round(height * 0.2));
@@ -33,10 +44,13 @@ public class WorldMap{
         int jungleSize = (maxHeight-minHeight+1)*width;
         int mapSize = width*height;
 
+
         this.jungleIterator = new JungleGrassPositionsGenerator(width,
                 minHeight, maxHeight, jungleSize).iterator();
         this.steppeIterator = new SteppeGrassPositionsGenerator(width,
                 minHeight, maxHeight, height, mapSize - jungleSize).iterator();
+
+
     }
     public boolean isOccupied(Vector2d position){
         List<Animal> animalsAtPosition = animals.get(position);
@@ -66,16 +80,6 @@ public class WorldMap{
         grasses.remove(grass.getPosition(), grass);
     }
 
-    public List<WorldElement> getElements(Vector2d position) {
-        List<WorldElement> elements = new ArrayList<>();
-        if (isOccupied(position)) {
-            if (grasses.containsKey(position)) elements.add(grasses.get(position));
-            List<Animal> animalsAtPosition = animals.get(position);
-            if (animalsAtPosition!=null) elements.addAll(animalsAtPosition);
-        }
-        return elements;
-    }
-
     public List<WorldElement> getAllElements(){
         List<WorldElement> elements = new ArrayList<>();
         for (int i = 0; i<upperRight.getX()+1; i++){
@@ -99,7 +103,56 @@ public class WorldMap{
             animals.computeIfAbsent(element.getPosition(), k  -> new ArrayList<>()).add((Animal) element);
         }
     }
+    public void animalsReproduction(){
+        for (Map.Entry<Vector2d,List<Animal>> entry : animals.entrySet()){
+            Vector2d position = entry.getKey();
+            List<Animal> animalsAtPosition = entry.getValue();
+            if(animalsAtPosition.size()>=2){
+                List<Animal> ready = new ArrayList<>(animalsAtPosition.stream()
+                        .filter(a -> a.getLifeEnergy() >= config.energy().minimumToReproduce())
+                        .toList());
 
+                reproduceAt(position,ready);
+            }
+        }
+    }
+    private void reproduceAt(Vector2d position, List<Animal> ready){
+        boolean produced = true;
+        while(produced) {
+            ready.sort(Comparator.comparingInt(Animal::getLifeEnergy));
+            Animal mom = ready.get(ready.size()-1);
+            Animal dad = ready.get(ready.size()-2);
+
+            if (mom.getLifeEnergy() >= config.energy().minimumToReproduce() &&
+            dad.getLifeEnergy() >= config.energy().minimumToReproduce()) {
+
+                int totalEnergy = dad.getLifeEnergy() +  mom.getLifeEnergy();
+                int genesFromMom = (int) Math.round(
+                        ((double) mom.getLifeEnergy() / totalEnergy)
+                                * config.genotype().length()
+                );
+                boolean side = random.nextBoolean();
+                List<Integer> result = new ArrayList<>();
+                if (side) {
+                    result.addAll(new ArrayList<>(mom.getGene().subList(0, genesFromMom)));
+                    result.addAll(new ArrayList<>(dad.getGene().subList(genesFromMom, config.genotype().length())));
+                } else {
+                    int fromDad = config.genotype().length() - genesFromMom;
+                    result.addAll(new ArrayList<>(dad.getGene().subList(0, fromDad)));
+                    result.addAll(new ArrayList<>(mom.getGene().subList(fromDad, config.genotype().length())));
+                }
+                mom.setLifeEnergy(mom.getLifeEnergy() - (int) Math.round((double) genesFromMom / config.genotype().length() * config.animal().offspringEnergyAtStart()));
+
+                dad.setLifeEnergy(dad.getLifeEnergy() - (int) Math.round((double) (config.genotype().length() - genesFromMom) / config.genotype().length() * config.animal().offspringEnergyAtStart()));
+
+                Animal child = new Animal(position,WDPool[random.nextInt(8)],result,config.animal().offspringEnergyAtStart());
+                place(child);
+            }else{
+                produced = false;
+            }
+        }
+
+    }
     public void removeAnimal(Animal animal) {
         Vector2d position = animal.getPosition();
         List<Animal> animalsAtPosition = animals.get(position);
