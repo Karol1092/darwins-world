@@ -110,7 +110,7 @@ public class WorldMap{
         }
         sortedAnimals.sort(Comparator.comparingInt(Animal::getLifeEnergy).reversed());
         for (Animal animal : sortedAnimals) {
-            Grass grass = getGrass(animal.getPosition());
+            Grass grass = getGrassAtPosition(animal.getPosition());
             if (grass != null) {
                 removeGrass(grass);
                 animal.setLifeEnergy(animal.getLifeEnergy() + config.energy().grassProfit());

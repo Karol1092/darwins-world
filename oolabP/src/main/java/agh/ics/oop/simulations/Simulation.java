@@ -85,7 +85,17 @@ public class Simulation implements Runnable {
 
         moveAliveAnimals();
 
-        animalsGrassEating();
+        map.mapChanged("day: " + days + "\n" +
+                "number of animals: " + animals.size() + "\n" +
+                "number of grass: " + map.getAllGrasses().size()  + "\n");
+
+        try{
+            Thread.sleep(500);
+        }catch (InterruptedException e){
+            e.printStackTrace();
+        }
+
+        map.animalsGrassEating();
 
         List<Animal> newborns = map.animalsReproduction();
         animals.addAll(newborns);
@@ -97,7 +107,7 @@ public class Simulation implements Runnable {
                 "number of grass: " + map.getAllGrasses().size()  + "\n");
 
         try{
-            Thread.sleep(1000);
+            Thread.sleep(500);
         }catch (InterruptedException e){
             e.printStackTrace();
         }
