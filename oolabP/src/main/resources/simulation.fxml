@@ -22,8 +22,8 @@
                  <HBox alignment="CENTER"><Label fx:id="mapProperty" text="Map properties"/></HBox>
                  <HBox alignment="CENTER"><Label fx:id="mapHeightLabel" text="Height: "/><TextField fx:id="mapHeightTextField" promptText="10"/></HBox>
                  <HBox alignment="CENTER"><Label fx:id="mapWidthLabel" text="Width: "/><TextField fx:id="mapWidthTextField" promptText="10"/></HBox>
-                 <HBox alignment="CENTER"><Label fx:id="grassNumberLabel" text="Number of grass: "/><TextField fx:id="grassNumberTextField" promptText="10"/></HBox>
-                 <HBox alignment="CENTER"><Label fx:id="grassSpawnNumberLabel" text="Number of grass spawning each day: "/><TextField fx:id="grassSpawnNumberTextField" promptText="3"/></HBox>
+                 <HBox alignment="CENTER"><Label fx:id="grassNumberLabel" text="Number of grass: "/><TextField fx:id="grassNumberTextField" promptText="15"/></HBox>
+                 <HBox alignment="CENTER"><Label fx:id="grassSpawnNumberLabel" text="Number of grass spawning each day: "/><TextField fx:id="grassSpawnNumberTextField" promptText="10"/></HBox>
               </VBox>
 
               <VBox styleClass="box" alignment="CENTER">
@@ -38,15 +38,15 @@
           <HBox styleClass="box" alignment="CENTER">
               <VBox styleClass="box" alignment="CENTER">
                  <HBox alignment="CENTER"><Label fx:id="animalLabel" text="Animal properties"/></HBox>
-                 <HBox alignment="CENTER"><Label fx:id="animalNumberLabel" text="Number of animals: "/><TextField fx:id="animalNumberField" promptText="2"/></HBox>
+                 <HBox alignment="CENTER"><Label fx:id="animalNumberLabel" text="Number of animals: "/><TextField fx:id="animalNumberField" promptText="10"/></HBox>
                  <HBox alignment="CENTER"><Label fx:id="startEnergyLabel" text="Animal start energy: "/><TextField fx:id="startEnergyTextField" promptText="70"/></HBox>
               </VBox>
 
               <VBox styleClass="box" alignment="CENTER">
                  <HBox alignment="CENTER"><Label fx:id="geneLabel" text="Genes properties"/></HBox>
-                 <HBox alignment="CENTER"><Label fx:id="minimumMutationsLabel" text="Minimum number of mutations: "/><TextField fx:id="minimumMutationsTextField" promptText="1"/></HBox>
-                 <HBox alignment="CENTER"><Label fx:id="maximumMutationsLabel" text="Maximum number of mutations: "/><TextField fx:id="maximumMutationsTextField" promptText="3"/></HBox>
-                 <HBox alignment="CENTER"><Label fx:id="geneLengthLabel" text="Genes length: "/><TextField fx:id="geneLengthTextField" promptText="10"/></HBox>
+                 <HBox alignment="CENTER"><Label fx:id="minimumMutationsLabel" text="Minimum number of mutations: "/><TextField fx:id="minimumMutationsTextField" promptText="0"/></HBox>
+                 <HBox alignment="CENTER"><Label fx:id="maximumMutationsLabel" text="Maximum number of mutations: "/><TextField fx:id="maximumMutationsTextField" promptText="2"/></HBox>
+                 <HBox alignment="CENTER"><Label fx:id="geneLengthLabel" text="Genes length: "/><TextField fx:id="geneLengthTextField" promptText="5"/></HBox>
               </VBox>
           </HBox>
 

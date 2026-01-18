@@ -51,6 +51,7 @@ public class WorldMap{
         int jungleSize = (jungleMaxHeight-jungleMinHeight+1)*width;
         int mapSize = width*height;
 
+
         this.jungleGenerator = new JungleGrassPositionsGenerator(width,
                 jungleMinHeight, jungleMaxHeight, jungleSize);
         this.steppeGenerator = new SteppeGrassPositionsGenerator(width,
@@ -78,8 +79,15 @@ public class WorldMap{
         return new ArrayList<>(grasses.values());
     }
 
+    public List<Vector2d> getAllElementsPositions() {
+        Set<Vector2d> allPositions = new HashSet<>(animals.keySet());
+        allPositions.addAll(grasses.keySet());
+
+        return new ArrayList<>(allPositions);
+    }
+
     public void grassPlacement(int count) {
-        int place =0;
+        int place = 0;
         Iterator<Vector2d> jungleIterator = jungleGenerator.iterator();
         Iterator<Vector2d> steppeIterator = steppeGenerator.iterator();
         for (int i = 0; i < count; i++) {
@@ -108,10 +116,16 @@ public class WorldMap{
     public void animalsGrassEating() {
 
         List<Animal> sortedAnimals = new ArrayList<>();
+
         for (List<Animal> animalsAtPosition : animals.values()) {
             sortedAnimals.addAll(animalsAtPosition);
         }
-        sortedAnimals.sort(Comparator.comparingInt(Animal::getLifeEnergy).reversed());
+
+        sortedAnimals.sort(Comparator.comparingInt(Animal::getLifeEnergy)
+                .thenComparingInt(Animal::getAge)
+                .thenComparingInt(Animal::getNumberOfChildren)
+                .thenComparing(Animal::getUniqueId));
+
         for (Animal animal : sortedAnimals) {
             Grass grass = getGrassAtPosition(animal.getPosition());
             if (grass != null) {
@@ -169,7 +183,11 @@ public class WorldMap{
     private List<Animal> reproduceAt(Vector2d position, List<Animal> ready){
         List<Animal> children = new ArrayList<>();
         while(ready.size() >= 2) {
-            ready.sort(Comparator.comparingInt(Animal::getLifeEnergy));
+            ready.sort(Comparator.comparingInt(Animal::getLifeEnergy)
+                    .thenComparingInt(Animal::getAge)
+                    .thenComparingInt(Animal::getNumberOfChildren)
+                    .thenComparing(Animal::getUniqueId));
+
             Animal mom = ready.getLast();
             Animal dad = ready.get(ready.size() - 2);
 
@@ -216,6 +234,9 @@ public class WorldMap{
 
                 Animal child = new Animal(position, worldDirectionsPool[random.nextInt(8)], result, 2 * config.energy().lossDueToReproduction());
                 children.add(child);
+
+                mom.setNumberOfChildren(mom.getNumberOfChildren() + 1);
+                dad.setNumberOfChildren(dad.getNumberOfChildren() + 1);
 
                 ready.remove(mom);
                 ready.remove(dad);

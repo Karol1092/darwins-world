@@ -4,6 +4,7 @@ import agh.ics.oop.util.Vector2d;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public class Animal implements WorldElement {
 
@@ -13,22 +14,34 @@ public class Animal implements WorldElement {
     private int lifeEnergy;
     private boolean isBurning = false;
     private int burning;
+    private int age;
+    private int numberOfChildren;
+    private final UUID id = UUID.randomUUID();
+
     public Animal(Vector2d position) {
         this.position = position;
         this.facingDirection = WorldDirections.NORTH;
         this.gene = new ArrayList<>(List.of(0,0,0,0,0,0,1));
         this.lifeEnergy = 100;
+        this.age = 0;
+        this.numberOfChildren = 0;
     }
+
     public Animal(Vector2d position, WorldDirections facingDirection, List<Integer> gene, int lifeEnergy) {
         this.gene = gene;
         this.position = position;
         this.facingDirection = facingDirection;
         this.lifeEnergy = lifeEnergy;
+        this.age = 0;
+        this.numberOfChildren = 0;
     }
+
     public Animal(Vector2d position, List<Integer> gene) {
         this.gene = gene;
         this.position = position;
         this.facingDirection = WorldDirections.NORTH;
+        this.age = 0;
+        this.numberOfChildren = 0;
     }
     @Override
     public boolean getIsBurning() {
@@ -56,6 +69,22 @@ public class Animal implements WorldElement {
 
     public int getLifeEnergy(){
         return lifeEnergy;
+    }
+
+    public int getAge() {
+        return age;
+    }
+
+    public UUID getUniqueId() {
+        return id;
+    }
+
+    public int getNumberOfChildren() {
+        return numberOfChildren;
+    }
+
+    public void setNumberOfChildren(int newNumberOfChildren) {
+        numberOfChildren = newNumberOfChildren;
     }
 
     @Override
@@ -92,8 +121,9 @@ public class Animal implements WorldElement {
             default -> throw new Exception("Wrong rotation in Animal Genes");
         }
         position = position.add(WorldDirections.toUnitVector(facingDirection));
-
+        age++;
     }
+
     @Override
     public String toString() {
         return switch (facingDirection) {
