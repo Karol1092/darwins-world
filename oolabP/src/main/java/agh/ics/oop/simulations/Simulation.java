@@ -18,6 +18,8 @@ public class Simulation implements Runnable {
     private final SimulationConfig config;
     private final AnimalRandomizer randomizer;
     private List<Animal> animalsToRemove = new ArrayList<>();
+    private boolean paused = false;
+    private boolean running = true;
 
 //    wartości do pokazywania w presenterze:
     private int animalCounter;
@@ -33,6 +35,9 @@ public class Simulation implements Runnable {
         this.animals = randomizer.randomizer(config);
         this.map = new WorldMap(config);
         this.config = config;
+        this.paused = false;
+        this.running = true;
+
 //      trawa startowa:
         map.grassPlacement(config.map().numberOfGrass());
 //      zwierzęta startowe:
@@ -41,35 +46,58 @@ public class Simulation implements Runnable {
         }
     }
 
+    public void togglePause() {
+        this.paused = !this.paused;
+        if (!paused) {
+            synchronized (this) {
+                this.notifyAll();
+            }
+        }
+    }
+
+    public boolean isPaused() {
+        return paused;
+    }
+
     public WorldMap getWorldMap() {
         return this.map;
     }
 
     public void run() {
-        for (int i =0; i<50; i++) {
-            days++;
+        while (running) {
             try {
+                synchronized (this) {
+                    while (paused) {
+                        wait();
+                    }
+                }
+
+                days++;
                 dayCycle();
+
             } catch (Exception e) {
-                throw new RuntimeException(e);
+                e.printStackTrace();
             }
         }
     }
     public void dayCycle() throws Exception {
         removeDeadAnimals();
+
         moveAliveAnimals();
-        map.mapChanged("");
-        try{
-            Thread.sleep(500);
-        }catch (InterruptedException e){
-            e.printStackTrace();
-        }
-        map.animalsGrassEating(); //tylko ilość energii ma na razie znaczenie
-        map.animalsReproduction(); //tylko ilość energii ma na razie znaczenie
+
+        animalsGrassEating();
+
+        List<Animal> newborns = map.animalsReproduction();
+        animals.addAll(newborns);
+
         map.grassPlacement(config.map().numberOfGrassSpawn());
-        map.mapChanged("");
+
+        map.mapChanged("day: " + days + "\n" +
+                "number of animals: " + animals.size() + "\n" +
+                "number of grass: " + map.getAllGrasses().size()  + "\n");
+
         try{
-            Thread.sleep(500);
+            Thread.sleep(1000);
         }catch (InterruptedException e){
             e.printStackTrace();
         }
@@ -93,7 +121,6 @@ public class Simulation implements Runnable {
 
             map.move(animal, animal.getGene().get(((days - 1) % animal.getGene().size())));
             animal.setLifeEnergy(animal.getLifeEnergy() - config.energy().dailyLoss());
-
         }
     }
 

@@ -22,8 +22,7 @@ public record SimulationConfig(
 
     public record Animal(
         int numberAtStart,
-        int energyAtStart,
-        int offspringEnergyAtStart
+        int energyAtStart
     ) {}
 
     public record Genotype(
