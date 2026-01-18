@@ -7,6 +7,7 @@ import agh.ics.oop.model.world.map.WorldMap;
 import agh.ics.oop.util.*;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static java.lang.Math.max;
 
@@ -18,17 +19,9 @@ public class Simulation implements Runnable {
     private final SimulationConfig config;
     private final AnimalRandomizer randomizer;
     private List<Animal> animalsToRemove = new ArrayList<>();
+    private List<Integer> deadAnimalsLifespans = new ArrayList<>();
     private boolean paused = false;
     private boolean running = true;
-
-//    wartości do pokazywania w presenterze:
-    private int animalCounter;
-    private int grassCounter;
-    private int freeSpaceCounter;
-    private List<Integer> mostPopularGene;
-    private double avgEnergy;
-    private double avgLifeSpan;
-    private double avgChildCount;
 
     public Simulation(SimulationConfig config) {
         this.randomizer = new AnimalRandomizer();
@@ -80,6 +73,7 @@ public class Simulation implements Runnable {
             }
         }
     }
+
     public void dayCycle() throws Exception {
         removeDeadAnimals();
 
@@ -92,9 +86,7 @@ public class Simulation implements Runnable {
 
         map.grassPlacement(config.map().numberOfGrassSpawn());
 
-        map.mapChanged("day: " + days + "\n" +
-                "number of animals: " + animals.size() + "\n" +
-                "number of grass: " + map.getAllGrasses().size()  + "\n");
+        updateStatistics();
 
         try{
             Thread.sleep(1000);
@@ -107,6 +99,7 @@ public class Simulation implements Runnable {
         for(Animal animalToRemove : animalsToRemove){
             animals.remove(animalToRemove);
             map.removeAnimal(animalToRemove);
+            deadAnimalsLifespans.add(animalToRemove.getAge());
         }
         animalsToRemove = new ArrayList<>();
     }
@@ -125,5 +118,74 @@ public class Simulation implements Runnable {
         }
     }
 
+    private void updateStatistics() {
+        int animalCounter = animals.size();
+        int grassCounter = map.getAllGrasses().size();
+        int freeSpaceCounter = config.map().height() * config.map().width() - map.getAllElementsPositions().size();
+        String mostPopularGenotype = getMostPopularGenotype();
+        double averageEnergy = getAverageEnergy();
+        double averageLifespan = getAverageLifespan();
+        double averageNumberOfChildren = getAverageNumberOfChildren();
 
+        map.mapChanged("Day: " + days + "\n" +
+                "Number of animals: " + animalCounter + "\n" +
+                "Number of grass: " + grassCounter + "\n" +
+                "Number of free tiles: " + freeSpaceCounter + "\n" +
+                "The most popular genotype: " + mostPopularGenotype + "\n" +
+                "Average energy: " + averageEnergy + "\n" +
+                "Average lifespan: " + averageLifespan + "\n" +
+                "Average number of children: " + averageNumberOfChildren);
+
+    }
+
+    private String getMostPopularGenotype() {
+        Map<List<Integer>, Integer> genotypeCounter = new HashMap<>();
+
+        for(Animal animal : animals) {
+            List<Integer> genotype = animal.getGene();
+            genotypeCounter.put(genotype, genotypeCounter.getOrDefault(genotype, 0) + 1);
+        }
+
+        List<Integer> mostPopular = null;
+        int maxCounter = -1;
+
+        for(Map.Entry<List<Integer>, Integer> entry : genotypeCounter.entrySet()) {
+            if (entry.getValue() > maxCounter) {
+                maxCounter = entry.getValue();
+                mostPopular = entry.getKey();
+            }
+        }
+
+        if (mostPopular != null) {
+            return mostPopular.stream()
+                    .map(Object::toString)
+                    .collect(Collectors.joining());
+        } else {
+            return "";
+        }
+    }
+
+    private double getAverageEnergy() {
+        double averageEnergy = animals.stream()
+                .mapToDouble(Animal::getLifeEnergy)
+                .average()
+                .orElse(0.0);
+        return Math.round(averageEnergy * 100.0) / 100.0;
+    }
+
+    private double getAverageLifespan() {
+        double averageLifespan = deadAnimalsLifespans.stream()
+                .mapToDouble(Integer::doubleValue)
+                .average()
+                .orElse(0.0);
+        return Math.round(averageLifespan * 100.0) / 100.0;
+    }
+
+    private double getAverageNumberOfChildren() {
+        double averageNumberOfChildren = animals.stream()
+                .mapToDouble(Animal::getNumberOfChildren)
+                .average()
+                .orElse(0.0);
+        return Math.round(averageNumberOfChildren * 100.0) / 100.0;
+    }
 }

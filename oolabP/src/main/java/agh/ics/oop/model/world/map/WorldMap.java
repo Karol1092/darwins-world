@@ -77,8 +77,15 @@ public class WorldMap{
         return new ArrayList<>(grasses.values());
     }
 
+    public List<Vector2d> getAllElementsPositions() {
+        Set<Vector2d> allPositions = new HashSet<>(animals.keySet());
+        allPositions.addAll(grasses.keySet());
+
+        return new ArrayList<>(allPositions);
+    }
+
     public void grassPlacement(int count) {
-        int place =0;
+        int place = 0;
         Iterator<Vector2d> jungleIterator = jungleGenerator.iterator();
         Iterator<Vector2d> steppeIterator = steppeGenerator.iterator();
         for (int i = 0; i < count; i++) {
@@ -212,6 +219,9 @@ public class WorldMap{
 
                 Animal child = new Animal(position, worldDirectionsPool[random.nextInt(8)], result, 2 * config.energy().lossDueToReproduction());
                 children.add(child);
+
+                mom.setNumberOfChildren(mom.getNumberOfChildren() + 1);
+                dad.setNumberOfChildren(dad.getNumberOfChildren() + 1);
 
                 ready.remove(mom);
                 ready.remove(dad);
