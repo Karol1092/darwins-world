@@ -111,8 +111,7 @@ public class WorldMap{
                 List<Animal> ready = new ArrayList<>(animalsAtPosition.stream()
                         .filter(a -> a.getLifeEnergy() >= config.energy().minimumToReproduce())
                         .toList());
-
-                reproduceAt(position,ready);
+                if (ready.size()>2) reproduceAt(position,ready);
             }
         }
     }
@@ -144,6 +143,21 @@ public class WorldMap{
                 mom.setLifeEnergy(mom.getLifeEnergy() - (int) Math.round((double) genesFromMom / config.genotype().length() * config.animal().offspringEnergyAtStart()));
 
                 dad.setLifeEnergy(dad.getLifeEnergy() - (int) Math.round((double) (config.genotype().length() - genesFromMom) / config.genotype().length() * config.animal().offspringEnergyAtStart()));
+
+                List<Integer> indices = new ArrayList<>();
+                for (int i = 0; i < result.size(); i++) {
+                    indices.add(i);
+                }
+                Collections.shuffle(indices);
+                int mutationsCount = random.nextInt(
+                        config.genotype().minimumMutations(),
+                        config.genotype().maximumMutations() + 1
+                );
+
+                for (int i = 0; i < mutationsCount; i++) {
+                    int idx = indices.get(i);
+                    result.set(idx, random.nextInt(8));
+                }
 
                 Animal child = new Animal(position,WDPool[random.nextInt(8)],result,config.animal().offspringEnergyAtStart());
                 place(child);

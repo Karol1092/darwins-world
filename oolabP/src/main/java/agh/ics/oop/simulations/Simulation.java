@@ -20,6 +20,15 @@ public class Simulation implements Runnable {
     private final AnimalRandomizer randomizer;
     private List<Animal> animalsToRemove = new ArrayList<>();
 
+//    wartości do pokazywania w presenterze:
+    private int animalCounter;
+    private int grassCounter;
+    private int freeSpaceCounter;
+    private List<Integer> mostPopularGene;
+    private double avgEnergy;
+    private double avgLifeSpan;
+    private double avgChildCount;
+
     public Simulation(SimulationConfig config) {
         this.randomizer = new AnimalRandomizer();
         this.animals = randomizer.randomizer(config);
