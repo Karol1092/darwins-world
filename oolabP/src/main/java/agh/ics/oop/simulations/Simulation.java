@@ -2,7 +2,6 @@ package agh.ics.oop.simulations;
 
 import agh.ics.oop.model.world.element.Animal;
 import agh.ics.oop.model.world.element.Grass;
-import agh.ics.oop.model.world.element.WorldDirections;
 import agh.ics.oop.model.world.map.WorldMap;
 import agh.ics.oop.util.*;
 
@@ -14,7 +13,6 @@ public class Simulation implements Runnable {
 
     private int days = 0;
     private final List<Animal> animals;
-    private final List<Grass> grasses = new ArrayList<>();
     private final WorldMap map;
     private final SimulationConfig config;
     private final AnimalRandomizer randomizer;
@@ -93,7 +91,9 @@ public class Simulation implements Runnable {
 
         map.grassPlacement(config.map().numberOfGrassSpawn());
 
-        map.mapChanged("day: " + days + ", " + "number of animals: " + animals.size());
+        map.mapChanged("day: " + days + "\n" +
+                "number of animals: " + animals.size() + "\n" +
+                "number of grass: " + map.getAllGrasses().size()  + "\n");
 
         try{
             Thread.sleep(1000);
@@ -125,10 +125,9 @@ public class Simulation implements Runnable {
 
     private void animalsGrassEating() {
         for (Animal animal : animals) {
-            Grass grass = map.getGrass(animal.getPosition());
+            Grass grass = map.getGrassAtPosition(animal.getPosition());
             if (grass != null) {
                 map.removeGrass(grass);
-                grasses.remove(grass);
                 animal.setLifeEnergy(animal.getLifeEnergy() + config.energy().grassProfit());
             }
         }

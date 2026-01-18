@@ -56,7 +56,7 @@ public class Presenter implements Observer {
     public void mapChanged(WorldMap newWorldMap, String Message) {
         Platform.runLater(()->{
             drawMap(newWorldMap);
-            moveInfoLabel.setText(moveInfoLabel.getText()+"\n"+ Message);
+            moveInfoLabel.setText(Message);
         });
     }
 

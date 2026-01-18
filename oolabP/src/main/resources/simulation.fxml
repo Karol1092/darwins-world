@@ -22,7 +22,7 @@
                  <HBox alignment="CENTER"><Label fx:id="mapProperty" text="Map properties"/></HBox>
                  <HBox alignment="CENTER"><Label fx:id="mapHeightLabel" text="Height: "/><TextField fx:id="mapHeightTextField" promptText="10"/></HBox>
                  <HBox alignment="CENTER"><Label fx:id="mapWidthLabel" text="Width: "/><TextField fx:id="mapWidthTextField" promptText="10"/></HBox>
-                 <HBox alignment="CENTER"><Label fx:id="grassNumberLabel" text="Number of grass: "/><TextField fx:id="grassNumberTextField" promptText="20"/></HBox>
+                 <HBox alignment="CENTER"><Label fx:id="grassNumberLabel" text="Number of grass: "/><TextField fx:id="grassNumberTextField" promptText="10"/></HBox>
                  <HBox alignment="CENTER"><Label fx:id="grassSpawnNumberLabel" text="Number of grass spawning each day: "/><TextField fx:id="grassSpawnNumberTextField" promptText="3"/></HBox>
               </VBox>
 

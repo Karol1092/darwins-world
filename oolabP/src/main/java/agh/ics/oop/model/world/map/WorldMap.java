@@ -11,7 +11,6 @@ import agh.ics.oop.util.SimulationConfig;
 import agh.ics.oop.util.SteppeGrassPositionsGenerator;
 import agh.ics.oop.util.Vector2d;
 
-import java.sql.Array;
 import java.util.*;
 
 public class WorldMap{
@@ -59,8 +58,12 @@ public class WorldMap{
                 || grasses.containsKey(position);
     }
 
-    public Grass getGrass(Vector2d position) {
+    public Grass getGrassAtPosition(Vector2d position) {
         return grasses.getOrDefault(position, null);
+    }
+
+    public List<Grass> getAllGrasses() {
+        return new ArrayList<>(grasses.values());
     }
 
     public void grassPlacement(int count) {

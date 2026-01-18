@@ -23,7 +23,9 @@
     </center>
 
     <right>
-        <Label fx:id="moveInfoLabel" text="moveInfoLabel" BorderPane.alignment="TOP_LEFT" />
+        <VBox styleClass="box" alignment="CENTER">
+            <Label fx:id="moveInfoLabel" text="moveInfoLabel" BorderPane.alignment="TOP_LEFT" />
+        </VBox>
     </right>
 
     <bottom>
