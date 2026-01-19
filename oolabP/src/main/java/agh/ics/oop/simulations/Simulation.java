@@ -22,6 +22,7 @@ public class Simulation implements Runnable {
     private List<Integer> deadAnimalsLifespans = new ArrayList<>();
     private boolean paused = false;
     private boolean running = true;
+    private final List<SimulationState> history = new ArrayList<>();
 
     public Simulation(SimulationConfig config) {
         this.randomizer = new AnimalRandomizer();
@@ -55,6 +56,11 @@ public class Simulation implements Runnable {
     public WorldMap getWorldMap() {
         return this.map;
     }
+
+    public List<SimulationState> getHistory() {
+        return List.copyOf(history); // snapshot listy
+    }
+
 
     public void run() {
         while (running) {
@@ -91,7 +97,10 @@ public class Simulation implements Runnable {
 
         map.grassPlacement(config.map().numberOfGrassSpawn());
 
-        updateStatistics();
+        saveState();
+
+        String statistics = this.getStatistics();
+        map.mapChanged(statistics);
 
         try{
             Thread.sleep(1000);
@@ -123,7 +132,7 @@ public class Simulation implements Runnable {
         }
     }
 
-    private void updateStatistics() {
+    public String getStatistics() {
         int animalCounter = animals.size();
         int grassCounter = map.getAllGrasses().size();
         int freeSpaceCounter = config.map().height() * config.map().width() - map.getAllElementsPositions().size();
@@ -132,15 +141,14 @@ public class Simulation implements Runnable {
         double averageLifespan = getAverageLifespan();
         double averageNumberOfChildren = getAverageNumberOfChildren();
 
-        map.mapChanged("Day: " + days + "\n" +
+        return "Day: " + days + "\n" +
                 "Number of animals: " + animalCounter + "\n" +
                 "Number of grass: " + grassCounter + "\n" +
                 "Number of free tiles: " + freeSpaceCounter + "\n" +
                 "The most popular genotype: " + mostPopularGenotype + "\n" +
                 "Average energy: " + averageEnergy + "\n" +
                 "Average lifespan: " + averageLifespan + "\n" +
-                "Average number of children: " + averageNumberOfChildren);
-
+                "Average number of children: " + averageNumberOfChildren;
     }
 
     private String getMostPopularGenotype() {
@@ -192,5 +200,35 @@ public class Simulation implements Runnable {
                 .average()
                 .orElse(0.0);
         return Math.round(averageNumberOfChildren * 100.0) / 100.0;
+    }
+
+    private void saveState() {
+        Map<Vector2d, List<AnimalConfig>> currentAnimals = new HashMap<>();
+
+        for (Animal currentAnimal : animals) {
+            AnimalConfig config = new AnimalConfig(
+                    currentAnimal.getPosition(),
+                    currentAnimal.getFacingDirection(),
+                    currentAnimal.getLifeEnergy(),
+                    currentAnimal.getIsBurning(),
+                    currentAnimal.getAge(),
+                    currentAnimal.getNumberOfChildren()
+            );
+
+            currentAnimals
+                    .computeIfAbsent(currentAnimal.getPosition(), k -> new ArrayList<>())
+                    .add(config);
+        }
+
+        Set<Vector2d> currentGrasses = new HashSet<>(map.getAllGrassesPositions());
+
+        if (!paused) {
+            history.add(new SimulationState(
+                    days,
+                    currentAnimals,
+                    currentGrasses,
+                    getStatistics()
+            ));
+        }
     }
 }

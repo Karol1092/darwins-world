@@ -25,13 +25,13 @@
         </VBox>
     </right>
 
-
-
-
-
     <bottom>
         <VBox styleClass="box" alignment="CENTER_LEFT">
-            <Button fx:id="pauseButton" onAction="#onPauseButtonClicked" text="pause"/>
+            <HBox styleClass="box">
+                <Button fx:id="pauseButton" onAction="#onPauseButtonClicked" text="pause"/>
+                <Button fx:id="previousButton" onAction="#onPreviousButtonClicked" text="previous"/>
+                <Button fx:id="nextButton" onAction="#onNextButtonClicked" text="next"/>
+            </HBox>
         </VBox>
     </bottom>
 

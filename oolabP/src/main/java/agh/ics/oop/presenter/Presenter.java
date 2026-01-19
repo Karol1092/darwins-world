@@ -2,9 +2,12 @@ package agh.ics.oop.presenter;
 
 
 
+import agh.ics.oop.model.world.element.WorldDirections;
 import agh.ics.oop.model.world.element.WorldElement;
 import agh.ics.oop.model.world.map.WorldMap;
 import agh.ics.oop.simulations.Simulation;
+import agh.ics.oop.util.AnimalConfig;
+import agh.ics.oop.util.SimulationState;
 import agh.ics.oop.util.Vector2d;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -18,16 +21,25 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.TextAlignment;
 
+import java.util.List;
+import java.util.Map;
+
 public class Presenter implements Observer {
     private double offsetX;
     private double offsetY;
     private double cellSize;
     private Simulation simulation;
+    private List<SimulationState> historyBuffer;
+    private int currentDisplayIndex = -1;
+    private boolean browsingHistory = false;
 
     @FXML private VBox statsPanel;
     @FXML private Label moveInfoLabel;
     @FXML private Canvas canvas;
     @FXML private Button pauseButton;
+    @FXML private Button previousButton;
+    @FXML private Button nextButton;
+
     @FXML
     public void initialize() {
         canvas.sceneProperty().addListener((obs, oldScene, newScene) -> {
@@ -40,6 +52,8 @@ public class Presenter implements Observer {
 
     @Override
     public void mapChanged(WorldMap newWorldMap, String message) {
+        if (browsingHistory) return;
+
         Platform.runLater(()->{
             drawMap(newWorldMap);
             moveInfoLabel.setText(message);
@@ -51,12 +65,64 @@ public class Presenter implements Observer {
     }
 
     public void onPauseButtonClicked() {
-        if (simulation != null) {
-            simulation.togglePause();
-            Platform.runLater(() -> {
-                pauseButton.setText(simulation.isPaused() ? "Resume" : "Pause");
-            });
-        }
+        if (simulation == null) return;
+
+        simulation.togglePause();
+        boolean isPaused = simulation.isPaused();
+
+        Platform.runLater(() -> {
+            pauseButton.setText(isPaused ? "Resume" : "Pause");
+
+            if (isPaused) {
+                browsingHistory = true;
+
+                historyBuffer = simulation.getHistory();
+                if (historyBuffer != null && historyBuffer.size() > 1) {
+                    currentDisplayIndex = historyBuffer.size() - 1;
+                    previousButton.setDisable(false);
+                    nextButton.setDisable(true);
+                    renderFrame(currentDisplayIndex);
+                }
+            } else {
+                browsingHistory = false;
+
+                previousButton.setDisable(true);
+                nextButton.setDisable(true);
+            }
+        });
+    }
+
+
+    public void onPreviousButtonClicked() {
+        if (!browsingHistory || currentDisplayIndex <= 0) return;
+
+        currentDisplayIndex--;
+        renderFrame(currentDisplayIndex);
+
+        previousButton.setDisable(currentDisplayIndex == 0);
+        nextButton.setDisable(false);
+    }
+
+    public void onNextButtonClicked() {
+        if (!browsingHistory || currentDisplayIndex >= historyBuffer.size() - 1) return;
+
+        currentDisplayIndex++;
+        renderFrame(currentDisplayIndex);
+
+        nextButton.setDisable(currentDisplayIndex == historyBuffer.size() - 1);
+        previousButton.setDisable(false);
+    }
+
+
+    public void renderFrame(int index) {
+        if (historyBuffer == null || index < 0 || index >= historyBuffer.size()) return;
+
+        SimulationState state = historyBuffer.get(index);
+
+        Platform.runLater(() -> {
+            drawMapFromState(state);
+            moveInfoLabel.setText(state.statistics());
+        });
     }
 
     private double mapX(int x, Vector2d lower) {
@@ -66,6 +132,92 @@ public class Presenter implements Observer {
     private double mapY(int y, Vector2d lower, Vector2d upper) {
         int mapHeight = upper.getY() - lower.getY() + 1;
         return offsetY + (mapHeight - (y - lower.getY()) ) * cellSize;
+    }
+
+    public void drawMapFromState(SimulationState state) {
+        Vector2d lower = simulation.getWorldMap().getLowerLeft();
+        Vector2d upper = simulation.getWorldMap().getUpperRight();
+
+        int mapWidth = upper.getX() - lower.getX() + 1;
+        int mapHeight = upper.getY() - lower.getY() + 1;
+
+        double canvasWidth = canvas.getWidth();
+        double canvasHeight = canvas.getHeight();
+
+        int totalCols = mapHeight + 1;
+        int totalRows = mapWidth + 1;
+
+        cellSize = Math.min(canvasWidth / totalRows, canvasHeight / totalCols);
+
+        offsetX = (canvasWidth - cellSize * totalRows) / 2;
+        offsetY = (canvasHeight - cellSize * totalCols) / 2;
+
+        GraphicsContext gc = canvas.getGraphicsContext2D();
+
+        clearGrid(mapWidth, mapHeight);
+        drawJungle(gc, lower, upper);
+        drawGrid(gc, lower, upper);
+        drawAxis(gc, lower, upper);
+
+        drawGrassFromState(gc, state, lower, upper);
+        drawAnimalsFromState(gc, state, lower, upper);
+    }
+
+    private void drawGrassFromState(
+            GraphicsContext gc,
+            SimulationState state,
+            Vector2d lower,
+            Vector2d upper
+    ) {
+        configureFont(gc, (int)(cellSize * 0.8), Color.BLACK);
+
+        for (Vector2d pos : state.grassPositions()) {
+            double px = mapX(pos.getX(), lower);
+            double py = mapY(pos.getY(), lower, upper);
+
+            gc.fillText("*", px + cellSize / 2, py + cellSize / 2);
+        }
+    }
+
+    private void drawAnimalsFromState(
+            GraphicsContext gc,
+            SimulationState state,
+            Vector2d lower,
+            Vector2d upper
+    ) {
+        for (Map.Entry<Vector2d, List<AnimalConfig>> entry
+                : state.animalsPositions().entrySet()) {
+
+            Vector2d position = entry.getKey();
+            List<AnimalConfig> animals = entry.getValue();
+
+            double px = mapX(position.getX(), lower);
+            double py = mapY(position.getY(), lower, upper);
+
+            for (int i = 0; i < animals.size(); i++) {
+                AnimalConfig animal = animals.get(i);
+
+                Color color = animal.isBurning() ? Color.RED : Color.BLACK;
+                configureFont(gc, (int)(cellSize * 0.8), color);
+
+                String symbol = directionSymbol(animal.facingDirection());
+
+                gc.fillText(
+                        symbol,
+                        px + cellSize / 2,
+                        py + cellSize / 2
+                );
+            }
+        }
+    }
+
+    private String directionSymbol(WorldDirections dir) {
+        return switch (dir) {
+            case NORTH,NORTH_EAST,NORTH_WEST -> "^";
+            case SOUTH,SOUTH_EAST,SOUTH_WEST -> "v";
+            case WEST -> "<";
+            case EAST -> ">";
+        };
     }
 
     public void drawMap(WorldMap worldMap) {

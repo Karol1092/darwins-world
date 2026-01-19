@@ -80,6 +80,10 @@ public class WorldMap{
         return new ArrayList<>(grasses.values());
     }
 
+    public Set<Vector2d> getAllGrassesPositions() {
+        return new HashSet<>(grasses.keySet());
+    }
+
     public List<Vector2d> getAllElementsPositions() {
         Set<Vector2d> allPositions = new HashSet<>(animals.keySet());
         allPositions.addAll(grasses.keySet());
