@@ -81,6 +81,11 @@ public class Simulation implements Runnable {
 
         map.animalsGrassEating();
 
+        map.fireDamage();
+        map.fireSpreading();
+        map.reloadGenerators();
+
+
         List<Animal> newborns = map.animalsReproduction();
         animals.addAll(newborns);
 

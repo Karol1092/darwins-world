@@ -49,8 +49,13 @@ public class Presenter implements Observer {
     @FXML private TextField maximumMutationsTextField;
     @FXML private TextField geneLengthTextField;
 
+    @FXML private TextField burningTimeTextField;
+    @FXML private TextField fireProbabilityTextField;
+    @FXML private TextField fireDamegeTextField;
+
     private final static int CELL_SIZE = 40;
     private Simulation simulation;
+    private boolean defaultSimulation;
 
     @Override
     public void mapChanged(WorldMap newWorldMap, String Message) {
@@ -64,9 +69,17 @@ public class Presenter implements Observer {
         this.simulation = simulation;
     }
 
-    public void onSimulationStartClicked() {
-        SimulationConfig config = getConfigFromUI();
+    public void startDefaultSimulation() {
+        startSimulation(true);
+    }
 
+    public void startCustomSimulation() {
+        startSimulation(false);
+    }
+
+    public void startSimulation(boolean defaultSimulation) {
+        SimulationConfig config = getConfigFromUI();
+        this.defaultSimulation = defaultSimulation;
         Simulation simulation = new Simulation(config);
 
         try {
@@ -80,6 +93,7 @@ public class Presenter implements Observer {
         simulationThread.setDaemon(true);
         simulationThread.start();
     }
+
 
     private void startSimulationWindow(Simulation simulation) throws IOException {
         FXMLLoader loader = new FXMLLoader();
@@ -123,6 +137,19 @@ public class Presenter implements Observer {
         }
     }
 
+    private double getDoubleFromTextField(TextField textField) {
+        String text = textField.getText();
+        if (text == null || text.trim().isEmpty()) {
+            text = textField.getPromptText();
+        }
+
+        try {
+            return Double.parseDouble(text);
+        } catch (NumberFormatException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     private SimulationConfig getConfigFromUI() {
         var mapConfig = new SimulationConfig.Map(
                 getIntFromTextField(mapHeightTextField),
@@ -148,12 +175,18 @@ public class Presenter implements Observer {
                 getIntFromTextField(maximumMutationsTextField),
                 getIntFromTextField(geneLengthTextField)
         );
+        var fireConfig = new SimulationConfig.Fire(
+                !defaultSimulation ? getDoubleFromTextField(fireProbabilityTextField) : 0.0,
+                !defaultSimulation ? getIntFromTextField(burningTimeTextField) : 0,
+                !defaultSimulation ? getIntFromTextField(fireDamegeTextField) : 0
+        );
 
         return new SimulationConfig(
                 mapConfig,
                 energyConfig,
                 animalConfig,
-                genotypeConfig
+                genotypeConfig,
+                fireConfig
         );
     }
 
@@ -216,11 +249,12 @@ public class Presenter implements Observer {
     }
 
     private void drawWorldElements(GraphicsContext gc,WorldMap worldMap,Vector2d lower,Vector2d upper){
-        configureFont(gc,50,Color.BLACK);
         for (WorldElement element: worldMap.getAllElements()){
             Vector2d position = element.getPosition();
             int x = position.getX()-lower.getX()+1;
             int y = upper.getY() - position.getY()+1;
+            if (element.getIsBurning()) configureFont(gc,50,Color.RED);
+            else configureFont(gc,50,Color.BLACK);
             gc.fillText(element.toString(), x*CELL_SIZE+CELL_SIZE/2, y*CELL_SIZE+CELL_SIZE/2);
         }
     }

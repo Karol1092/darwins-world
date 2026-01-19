@@ -52,11 +52,12 @@
 
           <HBox styleClass="box" alignment="CENTER">
               <VBox styleClass="box" alignment="CENTER">
-                 <HBox alignment="CENTER"><Button mnemonicParsing="false" onAction="#onSimulationStartClicked" text="Start default simulation"/></HBox>
+                 <HBox alignment="CENTER"><Button mnemonicParsing="false" onAction = "#startDefaultSimulation" text="Start default simulation"/></HBox>
                  <HBox alignment="CENTER"><Label fx:id="ModificationLabel" text="Modified simulation properties"/></HBox>
                  <HBox alignment="CENTER"><Label fx:id="burningTimeLabel" text="Animal/grass burning time (days): "/><TextField fx:id="burningTimeTextField" promptText="3"/></HBox>
                  <HBox alignment="CENTER"><Label fx:id="fireProbabilityLabel" text="Fire ignition probability: "/><TextField fx:id="fireProbabilityTextField" promptText="0.05"/></HBox>
-                 <HBox alignment="CENTER"><Button mnemonicParsing="false" text="Start modified simulation"/></HBox>
+                  <HBox alignment="CENTER"><Label fx:id="fireDamageLabel" text="Fire damage (per day): "/><TextField fx:id="fireDamegeTextField" promptText="20"/></HBox>
+                 <HBox alignment="CENTER"><Button mnemonicParsing="false" onAction="#startCustomSimulation" text="Start modified simulation"/></HBox>
               </VBox>
           </HBox>
       </VBox>

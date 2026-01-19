@@ -10,6 +10,7 @@ import agh.ics.oop.util.JungleGrassPositionsGenerator;
 import agh.ics.oop.util.SimulationConfig;
 import agh.ics.oop.util.SteppeGrassPositionsGenerator;
 import agh.ics.oop.util.Vector2d;
+import com.sun.javafx.geom.Vec2d;
 
 import java.util.*;
 
@@ -39,6 +40,7 @@ public class WorldMap{
             WorldDirections.WEST,
             WorldDirections.NORTH_WEST};
     private final  SimulationConfig config;
+    private final HashMap<Vector2d,Integer> vectorCooldown = new HashMap<>();
 
     public WorldMap(SimulationConfig config) {
         this.upperRight = new Vector2d((config.map().width() - 1), (config.map().height() - 1));
@@ -66,8 +68,7 @@ public class WorldMap{
                 || grasses.containsKey(position);
     }
 
-    private boolean grassLocation(Grass grass){
-        Vector2d position = grass.getPosition();
+    private boolean grassLocation(Vector2d position){
         return position.getY() >= jungleMinHeight && position.getY() <= jungleMaxHeight;
     }
 
@@ -105,7 +106,7 @@ public class WorldMap{
     }
 
     public void removeGrass(Grass grass) {
-        if (grassLocation(grass)) {
+        if (grassLocation(grass.getPosition())) {
             jungleGenerator.addIndex(grass.getPosition());
         }else{
             steppeGenerator.addIndex(grass.getPosition());
@@ -128,9 +129,19 @@ public class WorldMap{
 
         for (Animal animal : sortedAnimals) {
             Grass grass = getGrassAtPosition(animal.getPosition());
-            if (grass != null) {
-                removeGrass(grass);
-                animal.setLifeEnergy(animal.getLifeEnergy() + config.energy().grassProfit());
+            if (grass != null && !grass.getIsBurning()) {
+                if (random.nextInt(100)>config.fire().probability()*100) {
+                    removeGrass(grass);
+                    animal.setLifeEnergy(animal.getLifeEnergy() + config.energy().grassProfit());
+                }else{
+                    fires.add(grass.getPosition());
+                    elementsOnFire.computeIfAbsent(animal.getPosition(), p -> new ArrayList<>()).add(animal);
+                    elementsOnFire.computeIfAbsent(grass.getPosition(), p -> new ArrayList<>()).add(grass);
+                    animal.setBurning(config.fire().lasting());
+                    animal.setIsBurning(true);
+                    grass.setIsBurning(true);
+                    grass.setBurning(config.fire().lasting());
+                }
             }
         }
     }
@@ -167,6 +178,7 @@ public class WorldMap{
             List<Animal> animalsAtPosition = entry.getValue();
             if(animalsAtPosition.size() >= 2){
                 List<Animal> ready = new ArrayList<>(animalsAtPosition.stream()
+                        .filter(a-> !a.getIsBurning())
                         .filter(a -> a.getLifeEnergy() >= config.energy().minimumToReproduce())
                         .toList());
                 if (ready.size() >= 2) {
@@ -284,6 +296,12 @@ public class WorldMap{
 
         animal.setPosition(new Vector2d(x,y));
         animals.computeIfAbsent(animal.getPosition(), k -> new ArrayList<>()).add(animal);
+
+        if (fires.contains(animal.getPosition()) && !animal.getIsBurning()){
+            elementsOnFire.computeIfAbsent(animal.getPosition(), k -> new ArrayList<>()).add(animal);
+            animal.setBurning(config.fire().lasting());
+            animal.setIsBurning(true);
+        }
     }
 
     public void fireDamage(){
@@ -294,8 +312,13 @@ public class WorldMap{
             List<WorldElement> elementsNoLongerOnFire = new ArrayList<>();
                 for (WorldElement worldElement : elementsOnFireAtPosition){
                     worldElement.setBurning(worldElement.getBurning()-1);
-                    if (worldElement.getBurning() < 0) {
-                        if (worldElement instanceof Grass) grasses.remove(position);
+                    if (worldElement.getBurning() <= 0) {
+                        if (worldElement instanceof Grass){
+                            fires.remove(position);
+                            worldElement.setIsBurning(false);
+                            grasses.remove(position);
+                            vectorCooldown.put(worldElement.getPosition(),config.fire().lasting()-1);
+                        }
                         elementsNoLongerOnFire.add(worldElement);
                         worldElement.setIsBurning(false);
                     }else {
@@ -306,16 +329,18 @@ public class WorldMap{
                 }
 
                 elementsOnFireAtPosition.removeAll(elementsNoLongerOnFire);
+
                 if (elementsOnFireAtPosition.isEmpty()){
                     noFirePositions.add(position);
                 }
         }
         for (Vector2d position : noFirePositions){
             elementsOnFire.remove(position);
+            fires.remove(position);
         }
     }
 
-    private void fireSpreading() {
+    public void fireSpreading() {
         Set<Vector2d> newFire = new HashSet<>();
         for (Vector2d position: fires){
             for (Vector2d v : neighbours){
@@ -324,11 +349,28 @@ public class WorldMap{
                     newFire.add(pos);
                     Grass grass = grasses.get(pos);
                     grass.setIsBurning(true);
-                    grass.setBurning(config.fire().damage());
+                    grass.setBurning(config.fire().lasting());
+                    elementsOnFire.computeIfAbsent(pos, k -> new ArrayList<>()).add(grass);
                 }
             }
         }
         fires.addAll(newFire);
+    }
+
+    public void reloadGenerators(){
+        List<Vector2d> toRemove = new ArrayList<>();
+        for (Map.Entry<Vector2d,Integer> entry: vectorCooldown.entrySet()){
+            Vector2d position = entry.getKey();
+            int cooldown = entry.getValue()-1;
+            if (cooldown <= 0){
+                toRemove.add(position);
+                if(grassLocation(position)) jungleGenerator.addIndex(position);
+                else steppeGenerator.addIndex(position);
+            }else vectorCooldown.put(position,cooldown);
+        }
+        for (Vector2d position : toRemove){
+            vectorCooldown.remove(position);
+        }
     }
 
     public Vector2d getLowerLeft() {
@@ -353,3 +395,4 @@ public class WorldMap{
         }
     }
 }
+
