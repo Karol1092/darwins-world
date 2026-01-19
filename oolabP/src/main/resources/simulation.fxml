@@ -13,7 +13,7 @@
             minWidth="850.0"
             xmlns="http://javafx.com/javafx/25"
             xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="agh.ics.oop.presenter.Presenter"
+            fx:controller="agh.ics.oop.presenter.SetupPresenter"
             stylesheets="simulation.css">
    <center>
       <VBox styleClass="box" alignment="CENTER">

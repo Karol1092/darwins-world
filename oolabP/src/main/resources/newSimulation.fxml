@@ -14,19 +14,20 @@
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="agh.ics.oop.presenter.Presenter"
             stylesheets="newSimulation.css">
+
     <center>
-        <VBox styleClass="box" BorderPane.alignment="CENTER">
-            <children>
-                <Canvas fx:id="canvas" height="200.0" width="200.0" />
-            </children>
-        </VBox>
+        <Canvas fx:id="canvas"/>
     </center>
 
     <right>
-        <VBox styleClass="box" alignment="CENTER">
-            <Label fx:id="moveInfoLabel" text="moveInfoLabel" BorderPane.alignment="TOP_LEFT" />
+        <VBox fx:id="statsPanel" spacing="10" >
+            <Label fx:id="moveInfoLabel" text="moveInfoLabel"/>
         </VBox>
     </right>
+
+
+
+
 
     <bottom>
         <VBox styleClass="box" alignment="CENTER_LEFT">
