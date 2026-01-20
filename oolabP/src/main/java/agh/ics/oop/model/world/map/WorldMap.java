@@ -41,16 +41,20 @@ public class WorldMap{
             WorldDirections.NORTH_WEST};
     private final  SimulationConfig config;
     private final HashMap<Vector2d,Integer> vectorCooldown = new HashMap<>();
+    private final HashMap<Vector2d,Integer> popularGrassPositions = new  HashMap<>();
+    private final int jungleSize;
+    private int height;
+    private int width;
 
     public WorldMap(SimulationConfig config) {
         this.upperRight = new Vector2d((config.map().width() - 1), (config.map().height() - 1));
         this.config = config;
-        int height = config.map().height();
-        int width = config.map().width();
+        this.height = config.map().height();
+        this.width = config.map().width();
         int jungleHeight = Math.max(1, (int)Math.round(height * 0.2));
         this.jungleMinHeight = (height - jungleHeight) / 2;
         this. jungleMaxHeight = jungleMinHeight + jungleHeight - 1;
-        int jungleSize = (jungleMaxHeight-jungleMinHeight+1)*width;
+        this.jungleSize = (jungleMaxHeight-jungleMinHeight+1)*width;
         int mapSize = width*height;
 
 
@@ -168,6 +172,8 @@ public class WorldMap{
     public void place(WorldElement element) {
         if (element instanceof Grass) {
             grasses.put(element.getPosition(), (Grass) element);
+            int counter = popularGrassPositions.getOrDefault(element.getPosition(), 0);
+            popularGrassPositions.put(element.getPosition(), counter + 1);
         }
         else if (element instanceof Animal) {
             animals.computeIfAbsent(element.getPosition(), k  -> new ArrayList<>()).add((Animal) element);
@@ -194,6 +200,10 @@ public class WorldMap{
             place(baby);
         }
         return newborns;
+    }
+
+    public HashMap<Vector2d, Integer> getPopularGrassPositions() {
+        return popularGrassPositions;
     }
 
     private List<Animal> reproduceAt(Vector2d position, List<Animal> ready){
@@ -349,6 +359,8 @@ public class WorldMap{
         for (Vector2d position: fires){
             for (Vector2d v : neighbours){
                 Vector2d pos =  position.add(v);
+                int newX = ((pos.getX() % width) + width) % width;
+                pos = new Vector2d(newX,pos.getY());
                 if (grasses.containsKey(pos) && !grasses.get(pos).getIsBurning()){
                     newFire.add(pos);
                     Grass grass = grasses.get(pos);
@@ -375,6 +387,10 @@ public class WorldMap{
         for (Vector2d position : toRemove){
             vectorCooldown.remove(position);
         }
+    }
+
+    public int getJungleSize() {
+        return jungleSize;
     }
 
     public Vector2d getLowerLeft() {

@@ -22,6 +22,9 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.TextAlignment;
 
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
@@ -160,8 +163,9 @@ public class Presenter implements Observer {
         GraphicsContext gc = canvas.getGraphicsContext2D();
 
         clearGrid(mapWidth, mapHeight);
-        drawJungle(gc, lower, upper);
+        drawPopularGrassPositions(gc,simulation.getWorldMap(), lower, upper);
         drawGrid(gc, lower, upper);
+        drawJungle(gc, lower, upper);
         drawAxis(gc, lower, upper);
 
         drawGrassFromState(gc, state, lower, upper);
@@ -252,8 +256,9 @@ public class Presenter implements Observer {
         GraphicsContext gc = canvas.getGraphicsContext2D();
 
         clearGrid(mapWidth, mapHeight);
-        drawJungle(gc, lower, upper);
+        drawPopularGrassPositions(gc,worldMap,lower, upper);
         drawGrid(gc, lower, upper);
+        drawJungle(gc, lower, upper);
         drawAxis(gc, lower, upper);
         drawWorldElements(gc, worldMap, lower, upper);
     }
@@ -267,6 +272,7 @@ public class Presenter implements Observer {
 
     private void drawGrid(GraphicsContext gc, Vector2d lower, Vector2d upper) {
         gc.setStroke(Color.BLACK);
+        gc.setLineWidth(2);
         int rows = upper.getX() - lower.getX() + 1;
         int cols = upper.getY() - lower.getY() + 1;
 
@@ -303,18 +309,27 @@ public class Presenter implements Observer {
     }
 
     private void drawJungle(GraphicsContext gc, Vector2d lower, Vector2d upper) {
-        int mapWidth = upper.getX() - lower.getX() + 1;
         int mapHeight = upper.getY() - lower.getY() + 1;
+
         int jungleHeight = Math.max(1, (int)(mapHeight * 0.2));
         int minY = (mapHeight - jungleHeight) / 2;
 
-        gc.setFill(Color.DARKGREEN);
-        gc.fillRect(
-                offsetX+cellSize,
-                mapY(lower.getY() + minY + jungleHeight - 1, lower, upper),
-                mapWidth * cellSize,
-                jungleHeight * cellSize
-        );
+        int jungleMinX = lower.getX();
+        int jungleMinY = lower.getY()+minY;
+        int jungleMaxX = upper.getX();
+        int jungleMaxY = jungleMinY+jungleHeight-1;
+
+        gc.setLineWidth(1);
+
+        for (int i = jungleMinX; i <= jungleMaxX; i++) {
+            for (int j = jungleMinY; j <= jungleMaxY; j++) {
+                double px = mapX(i,lower);
+                double py = mapY(j,lower,upper);
+
+                gc.setStroke(Color.WHITE);
+                gc.strokeRect(px,py,cellSize,cellSize);
+            }
+        }
     }
 
     private void drawWorldElements(GraphicsContext gc, WorldMap worldMap, Vector2d lower, Vector2d upper){
@@ -331,6 +346,27 @@ public class Presenter implements Observer {
 
             gc.fillText(element.toString(), px + cellSize/2, py + cellSize/2);
         }
+    }
+    private void drawPopularGrassPositions(GraphicsContext gc,WorldMap worldMap, Vector2d lower, Vector2d upper) {
+        List<Map.Entry<Vector2d, Integer>> sortedPopularPositions =
+                new ArrayList<>(worldMap.getPopularGrassPositions().entrySet());
+        sortedPopularPositions.sort(Map.Entry.<Vector2d,Integer>comparingByValue().reversed());
+        for (int i = 0; i < Math.min(worldMap.getJungleSize(),sortedPopularPositions.size()); i++) {
+            paintCell(gc,sortedPopularPositions.get(i).getKey(),lower,upper,Color.rgb(34, 139, 34));
+        }
+    }
+    private void paintCell(
+            GraphicsContext gc,
+            Vector2d position,
+            Vector2d lower,
+            Vector2d upper,
+            Color color
+    ) {
+        double x = mapX(position.getX(), lower);
+        double y = mapY(position.getY(), lower, upper);
+
+        gc.setFill(color);
+        gc.fillRect(x, y, cellSize, cellSize);
     }
 
     private void configureFont(GraphicsContext graphics, int size, Color color) {
