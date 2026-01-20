@@ -74,20 +74,24 @@ public class Presenter implements Observer {
             pauseButton.setText(isPaused ? "Resume" : "Pause");
 
             if (isPaused) {
-                browsingHistory = true;
+                synchronized (this) {
+                    browsingHistory = true;
 
-                historyBuffer = simulation.getHistory();
-                if (historyBuffer != null && historyBuffer.size() > 1) {
-                    currentDisplayIndex = historyBuffer.size() - 1;
-                    previousButton.setDisable(false);
-                    nextButton.setDisable(true);
-                    renderFrame(currentDisplayIndex);
+                    historyBuffer = simulation.getHistory();
+                    if (historyBuffer != null && historyBuffer.size() > 1) {
+                        currentDisplayIndex = historyBuffer.size() - 1;
+                        previousButton.setDisable(false);
+                        nextButton.setDisable(true);
+                        renderFrame(currentDisplayIndex);
+                    }
                 }
             } else {
-                browsingHistory = false;
+                synchronized (this) {
+                    browsingHistory = false;
 
-                previousButton.setDisable(true);
-                nextButton.setDisable(true);
+                    previousButton.setDisable(true);
+                    nextButton.setDisable(true);
+                }
             }
         });
     }
@@ -169,11 +173,13 @@ public class Presenter implements Observer {
             Vector2d lower,
             Vector2d upper
     ) {
-        configureFont(gc, (int)(cellSize * 0.8), Color.BLACK);
 
-        for (Vector2d pos : state.grassPositions()) {
-            double px = mapX(pos.getX(), lower);
-            double py = mapY(pos.getY(), lower, upper);
+        for (Map.Entry<Vector2d, Boolean> entry : state.grassPositions().entrySet()) {
+            configureFont(gc, (int)(cellSize * 0.8), Color.BLACK);
+            if (entry.getValue()) configureFont(gc, (int)(cellSize * 0.8), Color.RED);
+
+            double px = mapX(entry.getKey().getX(), lower);
+            double py = mapY(entry.getKey().getY(), lower, upper);
 
             gc.fillText("*", px + cellSize / 2, py + cellSize / 2);
         }

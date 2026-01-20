@@ -58,9 +58,10 @@ public class Simulation implements Runnable {
     }
 
     public List<SimulationState> getHistory() {
-        return List.copyOf(history); // snapshot listy
+        synchronized (history) {
+            return List.copyOf(history);
+        }
     }
-
 
     public void run() {
         while (running) {
@@ -220,15 +221,21 @@ public class Simulation implements Runnable {
                     .add(config);
         }
 
-        Set<Vector2d> currentGrasses = new HashSet<>(map.getAllGrassesPositions());
+        Map<Vector2d, Boolean> currentGrasses = new HashMap<>();
+
+        for (Grass currentGrass : map.getAllGrasses()) {
+            currentGrasses.put(currentGrass.getPosition(), currentGrass.getIsBurning());
+        }
 
         if (!paused) {
-            history.add(new SimulationState(
-                    days,
-                    currentAnimals,
-                    currentGrasses,
-                    getStatistics()
-            ));
+            synchronized (history) {
+                history.add(new SimulationState(
+                        days,
+                        currentAnimals,
+                        currentGrasses,
+                        getStatistics()
+                ));
+            }
         }
     }
 }

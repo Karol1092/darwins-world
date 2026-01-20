@@ -9,6 +9,6 @@ import java.util.Set;
 public record SimulationState(
         int day,
         Map<Vector2d, List<AnimalConfig>> animalsPositions,
-        Set<Vector2d> grassPositions,
+        Map<Vector2d, Boolean> grassPositions,
         String statistics
 ) {}
