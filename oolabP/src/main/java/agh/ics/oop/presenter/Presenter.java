@@ -340,10 +340,9 @@ public class Presenter implements Observer {
 
             Color color = Color.BLACK;
             if (element.getIsBurning()) color = Color.RED;
-            if (element instanceof Animal && ((Animal) element).isMostPopularGene()) color = Color.PURPLE;
-
+            if (element instanceof Animal && ((Animal) element).isMostPopularGene()) color = Color.GOLD;
+            else if (element instanceof Animal) color = worldMap.getAnimalColor((Animal) element);
             configureFont(gc, (int)(cellSize*0.8), color);
-
             gc.fillText(element.toString(), px + cellSize/2, py + cellSize/2);
         }
     }

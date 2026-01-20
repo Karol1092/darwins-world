@@ -135,7 +135,6 @@ public class Animal implements WorldElement {
         position = position.add(WorldDirections.toUnitVector(facingDirection));
         age++;
     }
-
     @Override
     public String toString() {
         return switch (facingDirection) {

@@ -11,6 +11,7 @@ import agh.ics.oop.util.SimulationConfig;
 import agh.ics.oop.util.SteppeGrassPositionsGenerator;
 import agh.ics.oop.util.Vector2d;
 import com.sun.javafx.geom.Vec2d;
+import javafx.scene.paint.Color;
 
 import java.util.*;
 
@@ -168,7 +169,16 @@ public class WorldMap{
         }
         return elements;
     }
-
+    public Color getAnimalColor(Animal animal) {
+        double energy = animal.getLifeEnergy();
+        double n = (double) config.energy().minimumToReproduce()/5;
+        if (energy <  n) return Color.rgb(173, 216, 230);
+        if (energy < 2*n) return Color.rgb(100, 149, 237);
+        if (energy < 3*n) return Color.rgb(123, 104, 238);
+        if (energy < 4*n) return Color.rgb(72, 61, 139);
+        if (energy < 5*n) return Color.rgb(75, 0, 130);
+        else return Color.rgb(48, 0, 96);
+    }
     public void place(WorldElement element) {
         if (element instanceof Grass) {
             grasses.put(element.getPosition(), (Grass) element);
