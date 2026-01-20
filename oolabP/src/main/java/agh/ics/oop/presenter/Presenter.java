@@ -23,10 +23,7 @@ import javafx.scene.text.Font;
 import javafx.scene.text.TextAlignment;
 
 import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class Presenter implements Observer {
     private double offsetX;
@@ -175,7 +172,7 @@ public class Presenter implements Observer {
         GraphicsContext gc = canvas.getGraphicsContext2D();
 
         clearGrid(mapWidth, mapHeight);
-        drawPopularGrassPositions(gc,simulation.getWorldMap(), lower, upper);
+        drawPopularGrassPositions(gc,state.popularGrassPositions(),state.jungleSize(), lower, upper);
         drawGrid(gc, lower, upper);
         drawJungle(gc, lower, upper);
         drawAxis(gc, lower, upper);
@@ -268,7 +265,7 @@ public class Presenter implements Observer {
         GraphicsContext gc = canvas.getGraphicsContext2D();
 
         clearGrid(mapWidth, mapHeight);
-        drawPopularGrassPositions(gc,worldMap,lower, upper);
+        drawPopularGrassPositions(gc,worldMap.getPopularGrassPositions(),worldMap.getJungleSize(),lower, upper);
         drawGrid(gc, lower, upper);
         drawJungle(gc, lower, upper);
         drawAxis(gc, lower, upper);
@@ -358,13 +355,17 @@ public class Presenter implements Observer {
             gc.fillText(element.toString(), px + cellSize/2, py + cellSize/2);
         }
     }
-    private void drawPopularGrassPositions(GraphicsContext gc,WorldMap worldMap, Vector2d lower, Vector2d upper) {
-        List<Map.Entry<Vector2d, Integer>> sortedPopularPositions =
-                new ArrayList<>(worldMap.getPopularGrassPositions().entrySet());
-        sortedPopularPositions.sort(Map.Entry.<Vector2d,Integer>comparingByValue().reversed());
-        for (int i = 0; i < Math.min(worldMap.getJungleSize(),sortedPopularPositions.size()); i++) {
+    private void drawPopularGrassPositions(GraphicsContext gc,Map<Vector2d,Integer> popularGrassPositions,int jungleSize, Vector2d lower, Vector2d upper) {
+        List<Map.Entry<Vector2d,Integer>>sortedPopularPositions = sortPopularGrassPositions(popularGrassPositions);
+        for (int i = 0; i < Math.min(jungleSize,sortedPopularPositions.size()); i++) {
             paintCell(gc,sortedPopularPositions.get(i).getKey(),lower,upper,Color.rgb(34, 139, 34));
         }
+    }
+    private List<Map.Entry<Vector2d,Integer>> sortPopularGrassPositions(Map<Vector2d,Integer> popularGrassPositions){
+        List<Map.Entry<Vector2d, Integer>> sortedPopularPositions =
+                new ArrayList<>(popularGrassPositions.entrySet());
+        sortedPopularPositions.sort(Map.Entry.<Vector2d,Integer>comparingByValue().reversed());
+        return sortedPopularPositions;
     }
     private void paintCell(
             GraphicsContext gc,

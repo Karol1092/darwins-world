@@ -235,14 +235,17 @@ public class Simulation implements Runnable {
         for (Grass currentGrass : map.getAllGrasses()) {
             currentGrasses.put(currentGrass.getPosition(), currentGrass.getIsBurning());
         }
-
+        Map<Vector2d,Integer> popularGrassPositions = new HashMap<>(getWorldMap().getPopularGrassPositions());
         if (!paused) {
             synchronized (history) {
                 history.add(new SimulationState(
                         days,
+                        getWorldMap().getJungleSize(),
                         currentAnimals,
                         currentGrasses,
-                        getStatistics()
+                        getStatistics(),
+                        popularGrassPositions
+
                 ));
             }
         }
