@@ -222,8 +222,8 @@ public class Presenter implements Observer {
                 AnimalConfig animal = animals.get(i);
 
                 Color color = getEnergyColor(animal.lifeEnergy());
-                if (animal.isBurning()) color = Color.RED;
                 if (animal.isMostPopularGene()) color = Color.GOLD;
+                if (animal.isBurning()) color = Color.RED;
 
                 configureFont(gc, (int)(cellSize * 0.8), color);
 
