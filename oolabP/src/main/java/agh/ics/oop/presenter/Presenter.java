@@ -310,7 +310,7 @@ public class Presenter implements Observer {
 
         gc.setFill(Color.DARKGREEN);
         gc.fillRect(
-                offsetX,
+                offsetX+cellSize,
                 mapY(lower.getY() + minY + jungleHeight - 1, lower, upper),
                 mapWidth * cellSize,
                 jungleHeight * cellSize
