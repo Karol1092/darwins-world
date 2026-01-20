@@ -141,7 +141,19 @@ public class Presenter implements Observer {
         int mapHeight = upper.getY() - lower.getY() + 1;
         return offsetY + (mapHeight - (y - lower.getY()) ) * cellSize;
     }
-
+    public Color getEnergyColor(double energy) {
+        double n = (double) simulation.getWorldMap().getConfig().energy().minimumToReproduce()/5;
+        if (energy <  n) return Color.rgb(173, 216, 230);
+        if (energy < 2*n) return Color.rgb(100, 149, 237);
+        if (energy < 3*n) return Color.rgb(123, 104, 238);
+        if (energy < 4*n) return Color.rgb(72, 61, 139);
+        if (energy < 5*n) return Color.rgb(75, 0, 130);
+        else return Color.rgb(48, 0, 96);
+    }
+    public Color getAnimalColor(Animal animal) {
+        double energy = animal.getLifeEnergy();
+        return getEnergyColor(energy);
+    }
     public void drawMapFromState(SimulationState state) {
         Vector2d lower = simulation.getWorldMap().getLowerLeft();
         Vector2d upper = simulation.getWorldMap().getUpperRight();
@@ -209,9 +221,9 @@ public class Presenter implements Observer {
             for (int i = 0; i < animals.size(); i++) {
                 AnimalConfig animal = animals.get(i);
 
-                Color color = Color.BLACK;
+                Color color = getEnergyColor(animal.lifeEnergy());
                 if (animal.isBurning()) color = Color.RED;
-                if (animal.isMostPopularGene()) color = Color.PURPLE;
+                if (animal.isMostPopularGene()) color = Color.GOLD;
 
                 configureFont(gc, (int)(cellSize * 0.8), color);
 
@@ -341,7 +353,7 @@ public class Presenter implements Observer {
             Color color = Color.BLACK;
             if (element.getIsBurning()) color = Color.RED;
             if (element instanceof Animal && ((Animal) element).isMostPopularGene()) color = Color.GOLD;
-            else if (element instanceof Animal) color = worldMap.getAnimalColor((Animal) element);
+            else if (element instanceof Animal) color = getAnimalColor((Animal) element);
             configureFont(gc, (int)(cellSize*0.8), color);
             gc.fillText(element.toString(), px + cellSize/2, py + cellSize/2);
         }

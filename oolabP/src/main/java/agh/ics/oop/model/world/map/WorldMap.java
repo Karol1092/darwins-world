@@ -44,8 +44,8 @@ public class WorldMap{
     private final HashMap<Vector2d,Integer> vectorCooldown = new HashMap<>();
     private final HashMap<Vector2d,Integer> popularGrassPositions = new  HashMap<>();
     private final int jungleSize;
-    private int height;
-    private int width;
+    private final int height;
+    private final int width;
 
     public WorldMap(SimulationConfig config) {
         this.upperRight = new Vector2d((config.map().width() - 1), (config.map().height() - 1));
@@ -72,7 +72,9 @@ public class WorldMap{
         return (animalsAtPosition != null && !animalsAtPosition.isEmpty())
                 || grasses.containsKey(position);
     }
-
+    public SimulationConfig getConfig() {
+        return config;
+    }
     private boolean grassLocation(Vector2d position){
         return position.getY() >= jungleMinHeight && position.getY() <= jungleMaxHeight;
     }
@@ -169,16 +171,7 @@ public class WorldMap{
         }
         return elements;
     }
-    public Color getAnimalColor(Animal animal) {
-        double energy = animal.getLifeEnergy();
-        double n = (double) config.energy().minimumToReproduce()/5;
-        if (energy <  n) return Color.rgb(173, 216, 230);
-        if (energy < 2*n) return Color.rgb(100, 149, 237);
-        if (energy < 3*n) return Color.rgb(123, 104, 238);
-        if (energy < 4*n) return Color.rgb(72, 61, 139);
-        if (energy < 5*n) return Color.rgb(75, 0, 130);
-        else return Color.rgb(48, 0, 96);
-    }
+
     public void place(WorldElement element) {
         if (element instanceof Grass) {
             grasses.put(element.getPosition(), (Grass) element);
