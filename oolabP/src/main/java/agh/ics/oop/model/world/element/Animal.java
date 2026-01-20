@@ -16,6 +16,7 @@ public class Animal implements WorldElement {
     private int burning;
     private int age;
     private int numberOfChildren;
+    private boolean isMostPopularGene;
     private final UUID id = UUID.randomUUID();
 
     public Animal(Vector2d position) {
@@ -25,6 +26,7 @@ public class Animal implements WorldElement {
         this.lifeEnergy = 100;
         this.age = 0;
         this.numberOfChildren = 0;
+        this.isMostPopularGene = false;
     }
 
     public Animal(Vector2d position, WorldDirections facingDirection, List<Integer> gene, int lifeEnergy) {
@@ -34,6 +36,7 @@ public class Animal implements WorldElement {
         this.lifeEnergy = lifeEnergy;
         this.age = 0;
         this.numberOfChildren = 0;
+        this.isMostPopularGene = false;
     }
 
     public Animal(Vector2d position, List<Integer> gene) {
@@ -42,6 +45,7 @@ public class Animal implements WorldElement {
         this.facingDirection = WorldDirections.NORTH;
         this.age = 0;
         this.numberOfChildren = 0;
+        this.isMostPopularGene = false;
     }
     @Override
     public boolean getIsBurning() {
@@ -106,6 +110,14 @@ public class Animal implements WorldElement {
 
     public List<Integer> getGene() {
         return gene;
+    }
+
+    public boolean isMostPopularGene() {
+        return isMostPopularGene;
+    }
+
+    public void setMostPopularGene(boolean flag) {
+        this.isMostPopularGene = flag;
     }
 
     public void move(int rotation) throws Exception {

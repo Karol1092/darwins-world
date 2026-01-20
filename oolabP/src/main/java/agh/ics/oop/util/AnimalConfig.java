@@ -8,5 +8,6 @@ public record AnimalConfig(
     int lifeEnergy,
     boolean isBurning,
     int age,
-    int numberOfChildren
+    int numberOfChildren,
+    boolean isMostPopularGene
 ) {}

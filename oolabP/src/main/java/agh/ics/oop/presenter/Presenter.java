@@ -2,6 +2,7 @@ package agh.ics.oop.presenter;
 
 
 
+import agh.ics.oop.model.world.element.Animal;
 import agh.ics.oop.model.world.element.WorldDirections;
 import agh.ics.oop.model.world.element.WorldElement;
 import agh.ics.oop.model.world.map.WorldMap;
@@ -175,8 +176,9 @@ public class Presenter implements Observer {
     ) {
 
         for (Map.Entry<Vector2d, Boolean> entry : state.grassPositions().entrySet()) {
-            configureFont(gc, (int)(cellSize * 0.8), Color.BLACK);
-            if (entry.getValue()) configureFont(gc, (int)(cellSize * 0.8), Color.RED);
+            Color color = Color.BLACK;
+            if (entry.getValue()) color = Color.RED;
+            configureFont(gc, (int)(cellSize * 0.8), color);
 
             double px = mapX(entry.getKey().getX(), lower);
             double py = mapY(entry.getKey().getY(), lower, upper);
@@ -203,7 +205,10 @@ public class Presenter implements Observer {
             for (int i = 0; i < animals.size(); i++) {
                 AnimalConfig animal = animals.get(i);
 
-                Color color = animal.isBurning() ? Color.RED : Color.BLACK;
+                Color color = Color.BLACK;
+                if (animal.isBurning()) color = Color.RED;
+                if (animal.isMostPopularGene()) color = Color.PURPLE;
+
                 configureFont(gc, (int)(cellSize * 0.8), color);
 
                 String symbol = directionSymbol(animal.facingDirection());
@@ -318,8 +323,11 @@ public class Presenter implements Observer {
             double px = mapX(pos.getX(), lower);
             double py = mapY(pos.getY(), lower, upper);
 
-            if (element.getIsBurning()) configureFont(gc, (int)(cellSize*0.8), Color.RED);
-            else configureFont(gc, (int)(cellSize*0.8), Color.BLACK);
+            Color color = Color.BLACK;
+            if (element.getIsBurning()) color = Color.RED;
+            if (element instanceof Animal && ((Animal) element).isMostPopularGene()) color = Color.PURPLE;
+
+            configureFont(gc, (int)(cellSize*0.8), color);
 
             gc.fillText(element.toString(), px + cellSize/2, py + cellSize/2);
         }

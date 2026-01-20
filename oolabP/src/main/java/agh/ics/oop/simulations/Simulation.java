@@ -92,7 +92,6 @@ public class Simulation implements Runnable {
         map.fireSpreading();
         map.reloadGenerators();
 
-
         List<Animal> newborns = map.animalsReproduction();
         animals.addAll(newborns);
 
@@ -128,7 +127,7 @@ public class Simulation implements Runnable {
             }
             else {
                 map.move(animal, animal.getGene().get(((days - 1) % animal.getGene().size())));
-                animal.setLifeEnergy(animal.getLifeEnergy() - config.energy().dailyLoss());
+                animal.setLifeEnergy(Math.max(0, animal.getLifeEnergy() - config.energy().dailyLoss()));
             }
         }
     }
@@ -171,6 +170,14 @@ public class Simulation implements Runnable {
         }
 
         if (mostPopular != null) {
+            for (Animal animal : animals) {
+                if (animal.getGene().equals(mostPopular)) {
+                    animal.setMostPopularGene(true);
+                } else {
+                    animal.setMostPopularGene(false);
+                }
+            }
+
             return mostPopular.stream()
                     .map(Object::toString)
                     .collect(Collectors.joining());
@@ -207,13 +214,15 @@ public class Simulation implements Runnable {
         Map<Vector2d, List<AnimalConfig>> currentAnimals = new HashMap<>();
 
         for (Animal currentAnimal : animals) {
+            if (animalsToRemove.contains(currentAnimal)) continue;
             AnimalConfig config = new AnimalConfig(
                     currentAnimal.getPosition(),
                     currentAnimal.getFacingDirection(),
                     currentAnimal.getLifeEnergy(),
                     currentAnimal.getIsBurning(),
                     currentAnimal.getAge(),
-                    currentAnimal.getNumberOfChildren()
+                    currentAnimal.getNumberOfChildren(),
+                    currentAnimal.isMostPopularGene()
             );
 
             currentAnimals

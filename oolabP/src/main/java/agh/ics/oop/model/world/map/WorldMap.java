@@ -24,7 +24,7 @@ public class WorldMap{
     protected final List<Observer> observers = new ArrayList<>();
     private final JungleGrassPositionsGenerator jungleGenerator;
     private final SteppeGrassPositionsGenerator steppeGenerator;
-    private final int  jungleMinHeight;
+    private final int jungleMinHeight;
     private final int jungleMaxHeight;
     private final Vector2d[] neighbours = {new Vector2d(0,1),new Vector2d(0,0),new Vector2d(1,1), new Vector2d(1,0),
             new Vector2d(0,-1),new Vector2d(-1,0),new Vector2d(-1,1),new Vector2d(-1,-1)};
@@ -327,7 +327,7 @@ public class WorldMap{
                         worldElement.setIsBurning(false);
                     }else {
                         if (worldElement instanceof Animal) {
-                            ((Animal) worldElement).setLifeEnergy(((Animal) worldElement).getLifeEnergy() - config.fire().damage());
+                            ((Animal) worldElement).setLifeEnergy(Math.max(0, ((Animal) worldElement).getLifeEnergy() - config.fire().damage()));
                         }
                     }
                 }
