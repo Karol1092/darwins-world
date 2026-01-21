@@ -11,6 +11,9 @@ import agh.ics.oop.util.SimulationConfig;
 import agh.ics.oop.util.SteppeGrassPositionsGenerator;
 import agh.ics.oop.util.Vector2d;
 import com.sun.javafx.geom.Vec2d;
+import javafx.scene.chart.LineChart;
+import javafx.scene.chart.NumberAxis;
+import javafx.scene.chart.XYChart;
 import javafx.scene.paint.Color;
 
 import java.util.*;
@@ -46,6 +49,7 @@ public class WorldMap{
     private final int jungleSize;
     private final int height;
     private final int width;
+    private List<Double> stats = new ArrayList<>(List.of(0.0,0.0,0.0,0.0,0.0,0.0,0.0));
 
     public WorldMap(SimulationConfig config) {
         this.upperRight = new Vector2d((config.map().width() - 1), (config.map().height() - 1));
@@ -57,8 +61,6 @@ public class WorldMap{
         this. jungleMaxHeight = jungleMinHeight + jungleHeight - 1;
         this.jungleSize = (jungleMaxHeight-jungleMinHeight+1)*width;
         int mapSize = width*height;
-
-
         this.jungleGenerator = new JungleGrassPositionsGenerator(width,
                 jungleMinHeight, jungleMaxHeight, jungleSize);
         this.steppeGenerator = new SteppeGrassPositionsGenerator(width,
@@ -66,7 +68,12 @@ public class WorldMap{
 
 
     }
-
+    public List<Double> getStats() {
+        return stats;
+    }
+    public void setStats(ArrayList<Double> stats) {
+        this.stats=stats;
+    }
     public boolean isOccupied(Vector2d position){
         List<Animal> animalsAtPosition = animals.get(position);
         return (animalsAtPosition != null && !animalsAtPosition.isEmpty())
@@ -411,7 +418,6 @@ public class WorldMap{
     public void removeObserver(Observer observer){
         observers.remove(observer);
     }
-
     public void mapChanged(String message) {
         for (Observer observer : observers) {
             observer.mapChanged(this, message);

@@ -5,6 +5,8 @@ import agh.ics.oop.model.world.element.Grass;
 import agh.ics.oop.model.world.element.WorldDirections;
 import agh.ics.oop.model.world.map.WorldMap;
 import agh.ics.oop.util.*;
+import javafx.scene.chart.LineChart;
+import javafx.scene.chart.XYChart;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -18,8 +20,8 @@ public class Simulation implements Runnable {
     private final WorldMap map;
     private final SimulationConfig config;
     private final AnimalRandomizer randomizer;
-    private List<Animal> animalsToRemove = new ArrayList<>();
-    private List<Integer> deadAnimalsLifespans = new ArrayList<>();
+    private final List<Animal> animalsToRemove = new ArrayList<>();
+    private final List<Integer> deadAnimalsLifespans = new ArrayList<>();
     private boolean paused = false;
     private boolean running = true;
     private final List<SimulationState> history = new ArrayList<>();
@@ -115,7 +117,7 @@ public class Simulation implements Runnable {
             map.removeAnimal(animalToRemove);
             deadAnimalsLifespans.add(animalToRemove.getAge());
         }
-        animalsToRemove = new ArrayList<>();
+        animalsToRemove.clear();
     }
 
     private void moveAliveAnimals() throws Exception {
@@ -140,7 +142,14 @@ public class Simulation implements Runnable {
         double averageEnergy = getAverageEnergy();
         double averageLifespan = getAverageLifespan();
         double averageNumberOfChildren = getAverageNumberOfChildren();
-
+        getWorldMap().setStats(new ArrayList<>(List.of(
+                (double)days,
+                (double)animalCounter,
+                (double)grassCounter,
+                (double)freeSpaceCounter,
+                averageEnergy,
+                averageLifespan,
+                averageNumberOfChildren)));
         return "Day: " + days + "\n" +
                 "Number of animals: " + animalCounter + "\n" +
                 "Number of grass: " + grassCounter + "\n" +

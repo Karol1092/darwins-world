@@ -36,6 +36,7 @@ public class PresenterApp extends Application {
         map.addObserver(presenter);
         Stage stage = new Stage();
         configureStage(stage,viewRoot);
+
         stage.show();
     }
     private void configureStage(Stage primaryStage, BorderPane viewRoot) {
@@ -49,6 +50,7 @@ public class PresenterApp extends Application {
         primaryStage.setTitle("Simulation app");
         primaryStage.minWidthProperty().bind(viewRoot.minWidthProperty());
         primaryStage.minHeightProperty().bind(viewRoot.minHeightProperty());
+
 
     }
 

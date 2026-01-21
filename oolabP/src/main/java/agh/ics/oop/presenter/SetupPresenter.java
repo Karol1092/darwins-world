@@ -95,7 +95,8 @@ public class SetupPresenter {
         Stage stage = new Stage();
         stage.setTitle("Simulation Window");
         stage.setScene(new Scene(viewRoot));
-
+        stage.setMinWidth(900);
+        stage.setMinHeight(600);
         stage.show();
         presenter.drawMap(map);
 

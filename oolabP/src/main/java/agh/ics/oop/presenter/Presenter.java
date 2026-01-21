@@ -11,18 +11,21 @@ import agh.ics.oop.util.AnimalConfig;
 import agh.ics.oop.util.SimulationState;
 import agh.ics.oop.util.Vector2d;
 import javafx.application.Platform;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.VPos;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.chart.Chart;
+import javafx.scene.chart.LineChart;
+import javafx.scene.chart.NumberAxis;
+import javafx.scene.chart.XYChart;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.TextAlignment;
-
-import java.lang.reflect.Array;
 import java.util.*;
 
 public class Presenter implements Observer {
@@ -33,6 +36,19 @@ public class Presenter implements Observer {
     private List<SimulationState> historyBuffer;
     private int currentDisplayIndex = -1;
     private boolean browsingHistory = false;
+    private final LineChart<Number,Number> numberOfAnimals = new LineChart<>(new NumberAxis(), new NumberAxis());
+    private final LineChart<Number,Number> numberOfGrass= new LineChart<>(new NumberAxis(), new NumberAxis());
+    private final LineChart<Number,Number> numberOfFreeTiles= new LineChart<>(new NumberAxis(), new NumberAxis());
+    private final LineChart<Number,Number> averageEnergy = new LineChart<>(new NumberAxis(), new NumberAxis());
+    private final LineChart<Number,Number> averageLifeSpan= new LineChart<>(new NumberAxis(), new NumberAxis());
+    private final LineChart<Number,Number> averageChildren= new LineChart<>(new NumberAxis(), new NumberAxis());
+    private final XYChart.Series<Number,Number> numberOfAnimalsSeries = new XYChart.Series<>();
+    private final XYChart.Series<Number,Number> numberOfGrassSeries = new XYChart.Series<>();
+    private final XYChart.Series<Number,Number> numberOfFreeTilesSeries = new XYChart.Series<>();
+    private final XYChart.Series<Number,Number> averageEnergySeries = new XYChart.Series<>();
+    private final XYChart.Series<Number,Number> averageLifeSpanSeries = new XYChart.Series<>();
+    private final XYChart.Series<Number,Number> averageChildrenSeries = new XYChart.Series<>();
+
 
     @FXML private VBox statsPanel;
     @FXML private Label moveInfoLabel;
@@ -40,27 +56,110 @@ public class Presenter implements Observer {
     @FXML private Button pauseButton;
     @FXML private Button previousButton;
     @FXML private Button nextButton;
+    @FXML private VBox chartContainer;
+    @FXML private Chart defaultChart;
+    @FXML private Button btnAnimals,btnGrass,btnEnergy,btnFTiles,btnLSpan,btnChildren;
+    private Chart currentChart;
 
     @FXML
     public void initialize() {
+
+//     Charts:
+        currentChart = defaultChart;
+// --- Number of Animals ---
+        numberOfAnimals.setTitle("Number of Animals");
+        (numberOfAnimals.getXAxis()).setLabel("Day");
+        (numberOfAnimals.getYAxis()).setLabel("Animals");
+        numberOfAnimalsSeries.setName("Animals");
+        numberOfAnimals.getData().add(numberOfAnimalsSeries);
+        numberOfAnimals.setCreateSymbols(false);
+
+// --- Number of Grass ---
+        numberOfGrass.setTitle("Number of Grass");
+        (numberOfGrass.getXAxis()).setLabel("Day");
+        (numberOfGrass.getYAxis()).setLabel("Grass");
+        numberOfGrassSeries.setName("Grass");
+        numberOfGrass.getData().add(numberOfGrassSeries);
+        numberOfGrass.setCreateSymbols(false);
+
+// --- Number of Free Tiles ---
+        numberOfFreeTiles.setTitle("Number of Free Tiles");
+        (numberOfFreeTiles.getXAxis()).setLabel("Day");
+        (numberOfFreeTiles.getYAxis()).setLabel("Free Tiles");
+        numberOfFreeTilesSeries.setName("Free Tiles");
+        numberOfFreeTiles.getData().add(numberOfFreeTilesSeries);
+        numberOfFreeTiles.setCreateSymbols(false);
+
+// --- Average Energy ---
+        averageEnergy.setTitle("Average Energy");
+        (averageEnergy.getXAxis()).setLabel("Day");
+        (averageEnergy.getYAxis()).setLabel("Energy");
+        averageEnergySeries.setName("Average Energy");
+        averageEnergy.getData().add(averageEnergySeries);
+        averageEnergy.setCreateSymbols(false);
+
+// --- Average Lifespan ---
+        averageLifeSpan.setTitle("Average Lifespan");
+        (averageLifeSpan.getXAxis()).setLabel("Day");
+        (averageLifeSpan.getYAxis()).setLabel("Lifespan");
+        averageLifeSpanSeries.setName("Average Lifespan");
+        averageLifeSpan.getData().add(averageLifeSpanSeries);
+        averageLifeSpan.setCreateSymbols(false);
+
+// --- Average Children ---
+        averageChildren.setTitle("Average Number of Children");
+        (averageChildren.getXAxis()).setLabel("Day");
+        (averageChildren.getYAxis()).setLabel("Children");
+        averageChildrenSeries.setName("Average Children");
+        averageChildren.getData().add(averageChildrenSeries);
+        averageChildren.setCreateSymbols(false);
+
+
         canvas.sceneProperty().addListener((obs, oldScene, newScene) -> {
             if (newScene != null) {
                 canvas.widthProperty().bind(newScene.widthProperty().multiply(0.8));
-                canvas.heightProperty().bind(newScene.heightProperty().subtract(50));
+                canvas.heightProperty().bind(newScene.heightProperty().multiply(0.8));
                 statsPanel.prefWidthProperty().bind(newScene.widthProperty().multiply(0.2));
+                statsPanel.prefHeightProperty().bind(newScene.heightProperty().multiply(0.4));
+                chartContainer.prefWidthProperty().bind(newScene.widthProperty().multiply(0.2));
+                chartContainer.prefHeightProperty().bind(newScene.heightProperty().multiply(0.6));
             }
         });}
 
     @Override
     public void mapChanged(WorldMap newWorldMap, String message) {
         if (browsingHistory) return;
+        List<Double> stats = newWorldMap.getStats();
 
+        int days =stats.getFirst().intValue();
         Platform.runLater(()->{
+            numberOfAnimalsSeries.getData().add(new XYChart.Data<>(days,stats.get(1)));
+            numberOfGrassSeries.getData().add(new XYChart.Data<>(days,stats.get(2)));
+            numberOfFreeTilesSeries.getData().add(new XYChart.Data<>(days,stats.get(3)));
+            averageEnergySeries.getData().add(new XYChart.Data<>(days,stats.get(4)));
+            averageLifeSpanSeries.getData().add(new XYChart.Data<>(days,stats.get(5)));
+            averageChildrenSeries.getData().add(new XYChart.Data<>(days,stats.get(6)));
             drawMap(newWorldMap);
             moveInfoLabel.setText(message);
+            setChart(currentChart);
         });
     }
 
+    private void setChart(Chart newChart){
+        chartContainer.getChildren().clear();
+        chartContainer.getChildren().add(newChart);
+    }
+    @FXML
+    public void pickChart(ActionEvent event) {
+        Button btn = (Button) event.getSource();
+        if (btn == btnAnimals)  currentChart = numberOfAnimals;
+        else if (btn == btnGrass)  currentChart = numberOfGrass;
+        else if (btn == btnFTiles) currentChart = numberOfFreeTiles;
+        else if (btn == btnEnergy) currentChart = averageEnergy;
+        else if (btn == btnLSpan)  currentChart = averageLifeSpan;
+        else if (btn == btnChildren) currentChart = averageChildren;
+        else currentChart = defaultChart;
+    }
     public void setSimulation(Simulation simulation) {
         this.simulation = simulation;
     }

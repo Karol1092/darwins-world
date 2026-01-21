@@ -1,10 +1,8 @@
 package agh.ics.oop.util;
 
-import agh.ics.oop.model.world.element.Animal;
-
+import javafx.scene.chart.XYChart;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 public record SimulationState(
         int day,
