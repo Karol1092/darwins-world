@@ -159,6 +159,7 @@ public class Presenter implements Observer {
         else if (btn == btnLSpan)  currentChart = averageLifeSpan;
         else if (btn == btnChildren) currentChart = averageChildren;
         else currentChart = defaultChart;
+        setChart(currentChart);
     }
     public void setSimulation(Simulation simulation) {
         this.simulation = simulation;

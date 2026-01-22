@@ -49,7 +49,8 @@ public class PresenterApp extends Application {
         // konfiguracja okna
         primaryStage.setTitle("Simulation app");
         primaryStage.minWidthProperty().bind(viewRoot.minWidthProperty());
-        primaryStage.minHeightProperty().bind(viewRoot.minHeightProperty());
+//        primaryStage.minHeightProperty().bind(viewRoot.minHeightProperty());
+        primaryStage.setMinHeight(600);
 
 
     }
