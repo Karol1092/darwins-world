@@ -8,6 +8,9 @@ import agh.ics.oop.util.*;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.XYChart;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -25,6 +28,9 @@ public class Simulation implements Runnable {
     private boolean paused = false;
     private boolean running = true;
     private final List<SimulationState> history = new ArrayList<>();
+    private final UUID id = UUID.randomUUID();
+    private final String statisticsPath;
+    private final BufferedWriter writer;
 
     public Simulation(SimulationConfig config) {
         this.randomizer = new AnimalRandomizer();
@@ -39,6 +45,16 @@ public class Simulation implements Runnable {
 //      zwierzęta startowe:
         for (Animal animal : animals) {
             map.place(animal);
+        }
+
+        this.statisticsPath = "output/" + id.toString() + ".csv";
+        try {
+            java.nio.file.Files.createDirectories(java.nio.file.Paths.get("output"));
+            this.writer = new BufferedWriter(new FileWriter(statisticsPath));
+            writer.write("Day, Number of animals, Number of Grass, Number of free tiles, The most popular genotype, Average energy, Average lifespan, Average number of children");
+            writer.flush();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -104,15 +120,18 @@ public class Simulation implements Runnable {
         String statistics = this.getStatistics();
         map.mapChanged(statistics);
 
-        try{
+        writeStatisticsToFile(writer);
+        writer.flush();
+
+        try {
             Thread.sleep(1000);
-        }catch (InterruptedException e){
+        } catch (InterruptedException e) {
             e.printStackTrace();
         }
     }
 
     private void removeDeadAnimals() {
-        for(Animal animalToRemove : animalsToRemove){
+        for (Animal animalToRemove : animalsToRemove) {
             animals.remove(animalToRemove);
             map.removeAnimal(animalToRemove);
             deadAnimalsLifespans.add(animalToRemove.getAge());
@@ -126,8 +145,7 @@ public class Simulation implements Runnable {
             if (animal.getLifeEnergy() <= 0) {
                 map.removeAnimal(animal);
                 animalsToRemove.add(animal);
-            }
-            else {
+            } else {
                 map.move(animal, animal.getGene().get(((days - 1) % animal.getGene().size())));
                 animal.setLifeEnergy(Math.max(0, animal.getLifeEnergy() - config.energy().dailyLoss()));
             }
@@ -143,10 +161,10 @@ public class Simulation implements Runnable {
         double averageLifespan = getAverageLifespan();
         double averageNumberOfChildren = getAverageNumberOfChildren();
         getWorldMap().setStats(new ArrayList<>(List.of(
-                (double)days,
-                (double)animalCounter,
-                (double)grassCounter,
-                (double)freeSpaceCounter,
+                (double) days,
+                (double) animalCounter,
+                (double) grassCounter,
+                (double) freeSpaceCounter,
                 averageEnergy,
                 averageLifespan,
                 averageNumberOfChildren)));
@@ -163,7 +181,7 @@ public class Simulation implements Runnable {
     private String getMostPopularGenotype() {
         Map<List<Integer>, Integer> genotypeCounter = new HashMap<>();
 
-        for(Animal animal : animals) {
+        for (Animal animal : animals) {
             List<Integer> genotype = animal.getGene();
             genotypeCounter.put(genotype, genotypeCounter.getOrDefault(genotype, 0) + 1);
         }
@@ -171,7 +189,7 @@ public class Simulation implements Runnable {
         List<Integer> mostPopular = null;
         int maxCounter = -1;
 
-        for(Map.Entry<List<Integer>, Integer> entry : genotypeCounter.entrySet()) {
+        for (Map.Entry<List<Integer>, Integer> entry : genotypeCounter.entrySet()) {
             if (entry.getValue() > maxCounter) {
                 maxCounter = entry.getValue();
                 mostPopular = entry.getKey();
@@ -244,7 +262,7 @@ public class Simulation implements Runnable {
         for (Grass currentGrass : map.getAllGrasses()) {
             currentGrasses.put(currentGrass.getPosition(), currentGrass.getIsBurning());
         }
-        Map<Vector2d,Integer> popularGrassPositions = new HashMap<>(getWorldMap().getPopularGrassPositions());
+        Map<Vector2d, Integer> popularGrassPositions = new HashMap<>(getWorldMap().getPopularGrassPositions());
         if (!paused) {
             synchronized (history) {
                 history.add(new SimulationState(
@@ -258,5 +276,28 @@ public class Simulation implements Runnable {
                 ));
             }
         }
+    }
+
+    private void writeStatisticsToFile(BufferedWriter writer) throws IOException {
+        int animalCounter = animals.size();
+        int grassCounter = map.getAllGrasses().size();
+        int freeSpaceCounter = config.map().height() * config.map().width() - map.getAllElementsPositions().size();
+        String mostPopularGenotype = getMostPopularGenotype();
+        double averageEnergy = getAverageEnergy();
+        double averageLifespan = getAverageLifespan();
+        double averageNumberOfChildren = getAverageNumberOfChildren();
+
+        String statistics = String.format(Locale.US, "%d, %d, %d, %d, %s, %.2f, %.2f, %.2f",
+                days,
+                animalCounter,
+                grassCounter,
+                freeSpaceCounter,
+                mostPopularGenotype,
+                averageEnergy,
+                averageLifespan,
+                averageNumberOfChildren);
+
+        writer.newLine();
+        writer.write(statistics);
     }
 }
