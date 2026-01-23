@@ -31,6 +31,7 @@ public record SimulationConfig(
         int maximumMutations,
         int length
     ) {}
+
     public record Fire(
             double probability,
             int lasting,
