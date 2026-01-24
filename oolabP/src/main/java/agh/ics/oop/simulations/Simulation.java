@@ -2,19 +2,13 @@ package agh.ics.oop.simulations;
 
 import agh.ics.oop.model.world.element.Animal;
 import agh.ics.oop.model.world.element.Grass;
-import agh.ics.oop.model.world.element.WorldDirections;
 import agh.ics.oop.model.world.map.WorldMap;
 import agh.ics.oop.util.*;
-import javafx.scene.chart.LineChart;
-import javafx.scene.chart.XYChart;
-
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
-
-import static java.lang.Math.max;
 
 public class Simulation implements Runnable {
 
@@ -94,7 +88,7 @@ public class Simulation implements Runnable {
                 dayCycle();
 
             } catch (Exception e) {
-                e.printStackTrace();
+                IO.println(e.getMessage());
             }
         }
     }

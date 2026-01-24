@@ -1,7 +1,4 @@
 package agh.ics.oop.util;
-
-import agh.ics.oop.util.Vector2d;
-
 import java.util.*;
 
 public class JungleGrassPositionsGenerator implements Iterable<Vector2d> {
@@ -30,6 +27,7 @@ public class JungleGrassPositionsGenerator implements Iterable<Vector2d> {
         return new Iterator<>() {
             private final Random rand = new Random();
             private int returned = 0;
+
             @Override
             public Vector2d next() {
                 int newPosition = rand.nextInt(indexes.size());
@@ -39,6 +37,7 @@ public class JungleGrassPositionsGenerator implements Iterable<Vector2d> {
                 returned ++;
                 return element;
             }
+
             @Override
             public boolean hasNext() {
                 return returned < count && !indexes.isEmpty();

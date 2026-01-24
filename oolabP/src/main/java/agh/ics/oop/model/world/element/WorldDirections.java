@@ -24,6 +24,7 @@ public enum WorldDirections {
             case NORTH_WEST -> NORTH;
         };
     }
+
     public static WorldDirections previous(WorldDirections direction) {
         return switch (direction){
             case NORTH -> NORTH_WEST;
@@ -36,6 +37,7 @@ public enum WorldDirections {
             case NORTH_EAST -> NORTH;
         };
     }
+
     public static WorldDirections opposite(WorldDirections direction) {
         return switch (direction){
             case NORTH -> SOUTH;
@@ -48,6 +50,7 @@ public enum WorldDirections {
             case NORTH_WEST -> SOUTH_EAST;
         };
     }
+
     public static Vector2d toUnitVector(WorldDirections direction) {
         return switch (direction){
             case NORTH -> new Vector2d(0,1);
@@ -60,6 +63,7 @@ public enum WorldDirections {
             case NORTH_WEST ->  new Vector2d(-1,1);
         };
     }
+
     public static WorldDirections bounce(WorldDirections direction) {
         return switch (direction) {
             case NORTH_EAST -> SOUTH_EAST;

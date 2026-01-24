@@ -149,6 +149,7 @@ public class Presenter implements Observer {
         chartContainer.getChildren().clear();
         chartContainer.getChildren().add(newChart);
     }
+
     @FXML
     public void pickChart(ActionEvent event) {
         Button btn = (Button) event.getSource();
@@ -161,6 +162,7 @@ public class Presenter implements Observer {
         else currentChart = defaultChart;
         setChart(currentChart);
     }
+
     public void setSimulation(Simulation simulation) {
         this.simulation = simulation;
     }
@@ -196,7 +198,6 @@ public class Presenter implements Observer {
             }
         });
     }
-
 
     public void onPreviousButtonClicked() {
         if (!browsingHistory || currentDisplayIndex <= 0) return;
@@ -238,6 +239,7 @@ public class Presenter implements Observer {
         int mapHeight = upper.getY() - lower.getY() + 1;
         return offsetY + (mapHeight - (y - lower.getY()) ) * cellSize;
     }
+
     public Color getEnergyColor(double energy) {
         double n = (double) simulation.getWorldMap().getConfig().energy().minimumToReproduce()/5;
         if (energy <  n) return Color.rgb(173, 216, 230);
@@ -247,10 +249,12 @@ public class Presenter implements Observer {
         if (energy < 5*n) return Color.rgb(75, 0, 130);
         else return Color.rgb(48, 0, 96);
     }
+
     public Color getAnimalColor(Animal animal) {
         double energy = animal.getLifeEnergy();
         return getEnergyColor(energy);
     }
+
     public void drawMapFromState(SimulationState state) {
         Vector2d lower = simulation.getWorldMap().getLowerLeft();
         Vector2d upper = simulation.getWorldMap().getUpperRight();
@@ -315,14 +319,12 @@ public class Presenter implements Observer {
             double px = mapX(position.getX(), lower);
             double py = mapY(position.getY(), lower, upper);
 
-            for (int i = 0; i < animals.size(); i++) {
-                AnimalConfig animal = animals.get(i);
-
+            for (AnimalConfig animal : animals) {
                 Color color = getEnergyColor(animal.lifeEnergy());
                 if (animal.isMostPopularGene()) color = Color.GOLD;
                 if (animal.isBurning()) color = Color.RED;
 
-                configureFont(gc, (int)(cellSize * 0.8), color);
+                configureFont(gc, (int) (cellSize * 0.8), color);
 
                 String symbol = directionSymbol(animal.facingDirection());
 
@@ -461,12 +463,14 @@ public class Presenter implements Observer {
             paintCell(gc,sortedPopularPositions.get(i).getKey(),lower,upper,Color.rgb(34, 139, 34));
         }
     }
+
     private List<Map.Entry<Vector2d,Integer>> sortPopularGrassPositions(Map<Vector2d,Integer> popularGrassPositions){
         List<Map.Entry<Vector2d, Integer>> sortedPopularPositions =
                 new ArrayList<>(popularGrassPositions.entrySet());
         sortedPopularPositions.sort(Map.Entry.<Vector2d,Integer>comparingByValue().reversed());
         return sortedPopularPositions;
     }
+
     private void paintCell(
             GraphicsContext gc,
             Vector2d position,

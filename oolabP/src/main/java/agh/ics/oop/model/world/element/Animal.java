@@ -1,7 +1,6 @@
 package agh.ics.oop.model.world.element;
 
 import agh.ics.oop.util.Vector2d;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -67,6 +66,11 @@ public class Animal implements WorldElement {
         this.burning = burning;
     }
 
+    @Override
+    public Vector2d getPosition() {
+        return  position;
+    }
+
     public void setLifeEnergy(int lifeEnergy) {
         this.lifeEnergy = lifeEnergy;
     }
@@ -89,11 +93,6 @@ public class Animal implements WorldElement {
 
     public void setNumberOfChildren(int newNumberOfChildren) {
         numberOfChildren = newNumberOfChildren;
-    }
-
-    @Override
-    public Vector2d getPosition() {
-        return  position;
     }
 
     public void setPosition(Vector2d position) {
@@ -122,7 +121,7 @@ public class Animal implements WorldElement {
 
     public void move(int rotation) throws Exception {
         switch (rotation){
-            case 0 -> facingDirection = facingDirection;  //trzeba to podmienić na nic nie robienie
+            case 0 -> facingDirection = facingDirection;
             case 1 -> facingDirection = WorldDirections.next(facingDirection);
             case 2 -> facingDirection = WorldDirections.next(WorldDirections.next(facingDirection));
             case 3 -> facingDirection = WorldDirections.previous(WorldDirections.opposite(facingDirection));
@@ -135,6 +134,7 @@ public class Animal implements WorldElement {
         position = position.add(WorldDirections.toUnitVector(facingDirection));
         age++;
     }
+
     @Override
     public String toString() {
         return switch (facingDirection) {

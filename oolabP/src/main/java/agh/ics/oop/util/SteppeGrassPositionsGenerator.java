@@ -23,6 +23,7 @@ public class SteppeGrassPositionsGenerator implements Iterable<Vector2d> {
     public void addIndex(Vector2d index) {
         this.indexes.add(index);
     }
+
     @Override
     public Iterator<Vector2d> iterator() {
 
@@ -39,6 +40,7 @@ public class SteppeGrassPositionsGenerator implements Iterable<Vector2d> {
                 returned ++;
                 return element;
             }
+
             @Override
             public boolean hasNext() {
                 return returned < count && !indexes.isEmpty();

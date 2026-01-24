@@ -10,11 +10,6 @@ import agh.ics.oop.util.JungleGrassPositionsGenerator;
 import agh.ics.oop.util.SimulationConfig;
 import agh.ics.oop.util.SteppeGrassPositionsGenerator;
 import agh.ics.oop.util.Vector2d;
-import com.sun.javafx.geom.Vec2d;
-import javafx.scene.chart.LineChart;
-import javafx.scene.chart.NumberAxis;
-import javafx.scene.chart.XYChart;
-import javafx.scene.paint.Color;
 
 import java.util.*;
 
@@ -68,20 +63,25 @@ public class WorldMap{
 
 
     }
+
     public List<Double> getStats() {
         return stats;
     }
+
     public void setStats(ArrayList<Double> stats) {
         this.stats=stats;
     }
+
     public boolean isOccupied(Vector2d position){
         List<Animal> animalsAtPosition = animals.get(position);
         return (animalsAtPosition != null && !animalsAtPosition.isEmpty())
                 || grasses.containsKey(position);
     }
+
     public SimulationConfig getConfig() {
         return config;
     }
+
     private boolean grassLocation(Vector2d position){
         return position.getY() >= jungleMinHeight && position.getY() <= jungleMaxHeight;
     }
@@ -92,10 +92,6 @@ public class WorldMap{
 
     public List<Grass> getAllGrasses() {
         return new ArrayList<>(grasses.values());
-    }
-
-    public Set<Vector2d> getAllGrassesPositions() {
-        return new HashSet<>(grasses.keySet());
     }
 
     public List<Vector2d> getAllElementsPositions() {
@@ -203,7 +199,7 @@ public class WorldMap{
                         .toList());
                 if (ready.size() >= 2) {
                     newborns.addAll(reproduceAt(position, ready));
-                };
+                }
             }
         }
         for (Animal baby : newborns) {
@@ -415,9 +411,6 @@ public class WorldMap{
         observers.add(observer);
     }
 
-    public void removeObserver(Observer observer){
-        observers.remove(observer);
-    }
     public void mapChanged(String message) {
         for (Observer observer : observers) {
             observer.mapChanged(this, message);
