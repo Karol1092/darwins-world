@@ -1,0 +1,8 @@
+VBox.box {
+    -fx-padding: 10;
+    -fx-spacing: 10;
+}
+
+HBox.box {
+    -fx-spacing: 10;
+}

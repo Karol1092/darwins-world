@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.canvas.Canvas?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.VBox?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.chart.LineChart?>
+<?import javafx.scene.chart.NumberAxis?>
+<BorderPane minHeight="550.0"
+            minWidth="850.0"
+            xmlns="http://javafx.com/javafx/25"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="agh.ics.oop.presenter.Presenter"
+            stylesheets="newSimulation.css">
+
+    <center>
+        <Canvas fx:id="canvas"/>
+    </center>
+
+    <right>
+        <VBox>
+
+            <VBox fx:id="statsPanel" spacing="10" VBox.vgrow="ALWAYS" >
+                <Label fx:id="moveInfoLabel" text="moveInfoLabel"/>
+            </VBox>
+
+            <HBox spacing="5">
+                <Button text="Number of Animals" onAction="#pickChart" fx:id="btnAnimals"/>
+                <Button text="Number of Grass" onAction="#pickChart" fx:id="btnGrass"/>
+                <Button text="Number of Free Tiles" onAction="#pickChart" fx:id="btnFTiles"/>
+            </HBox>
+            <HBox spacing="5">
+                <Button text="Average Energy" onAction="#pickChart" fx:id="btnEnergy"/>
+                <Button text="Average LifeSpan" onAction="#pickChart" fx:id="btnLSpan"/>
+                <Button text="Average Number of Children" onAction="#pickChart" fx:id="btnChildren"/>
+            </HBox>
+            <VBox fx:id="chartContainer">
+                <LineChart fx:id="defaultChart" VBox.vgrow="ALWAYS">
+                    <xAxis>
+                        <NumberAxis label="day"/>
+                    </xAxis>
+                    <yAxis>
+                        <NumberAxis label = "value"/>
+                    </yAxis>
+                </LineChart>
+            </VBox>
+        </VBox>
+    </right>
+
+    <bottom>
+        <VBox styleClass="box" alignment="CENTER_LEFT">
+            <HBox styleClass="box">
+                <Button fx:id="pauseButton" onAction="#onPauseButtonClicked" text="pause"/>
+                <Button fx:id="previousButton" onAction="#onPreviousButtonClicked" text="previous"/>
+                <Button fx:id="nextButton" onAction="#onNextButtonClicked" text="next"/>
+            </HBox>
+        </VBox>
+    </bottom>
+
+    <padding>
+        <Insets right="20.0" />
+    </padding>
+</BorderPane>
