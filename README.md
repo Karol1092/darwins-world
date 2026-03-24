@@ -1,3 +1,2 @@
-# PO_2025_CZ1500_NOWAK_FUGIEL
-
+# Darwin's World
 ## 2D grid-based animal population and evolution simulation
